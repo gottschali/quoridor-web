@@ -1,0 +1,23 @@
+#+title: Quoridor
+
+* Goal
+This project tries to implement the abstract strategic board-game /Quoridor/ as a web-version.
+There are already a range of implementation.
+As a learning exercise we will try to build it from scratch.
+But we can take advantage of the existing solutions and try to combine the best UI-elements.
+So far I have not seen an online multiplayer version (well except for some proprietary websites).
+With our lessons from /HiveMind/ we should be able to quickly adapt a similar system.
+We have to make sure that the player agents are as abstract as possible in order that we can implement a wide array of agents such as
+- Naïve player
+- Monte-Carlo tree search
+  alpha-beta pruning
+
+* Abstractions
+- board size
+- wall numbers
+- pawn numbers
+
+* UI
+- Placing walls
+- the board
+-
