@@ -1,0 +1,76 @@
+
+.board {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*
+.pawn::after {
+    content: "●";
+}
+ */
+.gameTable {
+    font-size: 2em;
+}
+
+td.pawn {
+    font-size: 1em;
+}
+
+td.square, pawn {
+    display: inline-block;
+    height: 50px;
+    width: 50px;
+}
+
+
+tr>*:nth-child(2)  {
+    border-radius: 3px 0px 0px 3px;
+}
+
+tr>*:nth-last-child(2)  {
+    border-radius: 0px 3px 3px 0px;
+}
+
+.gameTable>tbody>tr:nth-child(2)>*  {
+    border-radius: 3px 3px 0px 0px;
+}
+.gameTable>tbody>tr:nth-last-child(2)>*  {
+    border-radius: 0px 0px 3px 3px;
+}
+
+.wall.highlight {
+    background: #b37c7c;
+}
+
+.square.highlight {
+    /* opacity: 0.5; */
+    color: grey;
+}
+
+.square.highlight::after {
+    content: "●";
+}
+
+.wall {
+    height: 5px;
+    width: 5px;
+}
+.cross {
+    background: black;
+}
+
+.free {
+    background: grey;
+}
+
+.wall.placed {
+    background: black;
+}
+
+tr:nth-child(2n-1) {
+    /* height: 1px; */
+    /* width: 1px; */
+}
