@@ -1,6 +1,6 @@
 export class Coord {
-    column: number;
-    row: number;
+    readonly column: number;
+    readonly row: number;
 
     constructor(row: number, column: number) {
         this.row = row;

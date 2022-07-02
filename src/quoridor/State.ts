@@ -56,7 +56,7 @@ export class State {
     height: number;
     private precomputedMoves: Array<Move> | undefined;
 
-    constructor(settings: GameSettings) {
+    constructor(settings: GameSettings = GameSettingsDefaults) {
         this.settings = { ...GameSettingsDefaults, ...settings };
         this.wallsAvailable = [this.settings.walls, this.settings.walls];
         // The size of the internal matrix representation
@@ -121,36 +121,40 @@ export class State {
         }
     }
 
-    makeMove(move: Move): void {
+    makeMove(move: Move): State {
         // We expect moves to use the internal representations
         // try to make it immutable and return
         // a new State instead of modifying this one?
         if (!this.isLegal(move)) {
             throw new Error('Illegal move given')
         }
-        // Really ugly: should go for immutability
-        delete this.precomputedMoves;
+        const newState = new State(this.settings);
+
+
+        for (let i=0;i<this.height;i++) {
+            for (let j=0;j<this.width;j++) {
+                newState.board[i][j] = this.board[i][j];
+            }
+        }
+        newState.pawnPositions = this.pawnPositions;
+
         // I would like have a type guard here like move typeof PawnMove
         // But the type information is not available at runtime...
         // That's why we have to use this ugly in operator narrowing
+
         if ('source' in move) {
             // move typeof PawnMove
-            for (const pp of this.pawnPositions) {
-                if (move.source.equals(pp)) {
-                    // Move that pawn
-                    pp.column = move.target.column;
-                    pp.row = move.target.row;
-                }
-            }
+            newState.pawnPositions[this.currentPlayer] = move.target;
         } else {
             // move typeof WallMove
-            this.placeWall(move, this.board);
-            this.wallsAvailable[this.currentPlayer]--;
+            newState.placeWall(move, newState.board);
+            newState.wallsAvailable[this.currentPlayer]--;
         }
-        this.currentPlayer = this.currentPlayer === Player.white ? Player.black : Player.white;
+        newState.currentPlayer = this.currentPlayer === Player.white ? Player.black : Player.white;
+        return newState;
     }
 
-    generateManhattenMoves(pos: Coord, board: Array<Array<Boolean>>): Array<Coord> {
+    generateManhattanMoves(pos: Coord, board: Array<Array<Boolean>>): Array<Coord> {
         const wallBlocks = pos.neighbours(1).map(({row, column}) => board[row][column]);
         const targets = pos.neighbours(2);
 
@@ -160,7 +164,7 @@ export class State {
     generatePawnMoves(pawnPos: Coord): Array<Move> {
         // All adjacent squares
         // But have to be on the board
-        let simpleMoves = this.generateManhattenMoves(pawnPos, this.board);
+        let simpleMoves = this.generateManhattanMoves(pawnPos, this.board);
         const enemyPos = this.pawnPositions[this.opponent];
         simpleMoves.forEach(c => {
             if (c.equals(enemyPos)) {
@@ -171,13 +175,12 @@ export class State {
                 if (!this.board[behind.row][behind.column]) {
                     simpleMoves.push(behind.add(direction));
                 } else {
-                    for (c of this.generateManhattenMoves(enemyPos, this.board)) {
+                    for (c of this.generateManhattanMoves(enemyPos, this.board)) {
                         simpleMoves.push(c);
                     }
                 }
             }
         });
-        console.log(simpleMoves);
         return simpleMoves.filter(p => !p.equals(pawnPos))
             .filter(p => !p.equals(enemyPos))
             .map(c => {
@@ -227,7 +230,7 @@ export class State {
                 return true; // Found a way
             }
             // There may be problem with opponent pawn interactions
-            for (const c of this.generateManhattenMoves(v, visited)) {
+            for (const c of this.generateManhattanMoves(v, visited)) {
                 if (visited[c.row][c.column]) continue;
                 visited[c.row][c.column] = true;
                 q.push(c);

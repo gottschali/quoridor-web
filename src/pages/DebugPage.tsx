@@ -1,70 +1,25 @@
-import { Dispatch, useEffect, useState, useSyncExternalStore } from "react"
+import { Dispatch, useState } from "react"
 import { Coord } from "../quoridor/Coord";
-import { Game } from "../quoridor/Game";
-import { Move, Orientation, PawnMove, WallMove } from "../quoridor/Move";
+import { Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
-import { RandomAgent } from "../quoridor/RandomAgent";
-import { State } from "../quoridor/State";
 import './Game.css';
 import { MoveHistory } from "./MoveHistory";
+import { useGame } from "./useGame";
 
-function selectMove(moves: Array<Move>) {
-    return moves[Math.floor(Math.random() * moves.length)];
-}
+/**
+ * Stuff to do
+ * - do something at game over
+ * - convert Move to Notation
+ * - from State to StateNotation
+ * - load the Game from StateNotation
+ * - show the current player
+ *   it is a bit confusing if they stand next to each other
+ *   maybe color the square of the active and also add a game info field
+ * - undo functionality
+ * - selecting different agents
+ * - game settings
+ */
 
-function useGame() {
-    const [state, setState] = useState(new State({}));
-    const [turn, setIndex] = useState(0);
-    const [history, setHistory] = useState<Move[]>([]);
-
-
-    // TODO
-    // encode every useful information in here
-    // so we do not have to do any silly checks in the UI component
-    // and use enums!
-    const [matrix, setMatrix] = useState<number[][]>(new Array(state.height).fill(0).map( () => new Array(state.width).fill(0)));
-
-    useEffect(() => {
-        const newMatrix = new Array(state.height).fill(0).map( () => new Array(state.width).fill(0))
-        console.log(newMatrix);
-        state.legalMoves.filter(l => 'target' in l)
-                        .map(l => (l as PawnMove).target)
-                        .forEach(p => {
-                            console.log(p)
-                            newMatrix[p.row][p.column] = 1;
-                        });
-        console.log(newMatrix);
-        setMatrix(newMatrix);
-
-    }, [turn])
-
-    const apply = (move: Move) => {
-        state.makeMove(move)
-        setState(state);
-        setIndex(turn + 1);
-    }
-
-    const proposeMove = (move: Move) => {
-        console.debug(`Proposed move: ${JSON.stringify(move)}`);
-        if (!state.isLegal(move)) {
-            console.debug(`Move is illaegal`);
-        } else {
-            console.debug(`Move: ${JSON.stringify(move)}`);
-            state.makeMove(move);
-            setIndex(turn + 1);
-            history.push(move);
-            setHistory(history);
-        }
-    }
-
-    const step = () => {
-        let selectedMove = selectMove(state.legalMoves);
-        console.debug(`Selected move: ${JSON.stringify(selectedMove)}`);
-        proposeMove(selectedMove);
-    }
-
-    return {apply, state, turn, step, proposeMove, matrix, history}
-}
 
 interface WallProps {
     occupied: boolean, row: number, column: number, orientation: Orientation,
@@ -142,7 +97,7 @@ function Square({row, column, highlight, proposeProx}: SquareProps) {
 }
 
 export function DebugPage() {
-    const {state, turn, step, proposeMove, matrix, history} = useGame();
+    const {state, restoreHistory, turn, step, proposeMove, matrix, history} = useGame();
     // We use sentinel impossible values here
     const [wall0, setWall0] = useState<Coord>(new Coord(-1, -1));
     const [wall1, setWall1] = useState<Coord>(new Coord(-1, -1));
@@ -161,7 +116,7 @@ export function DebugPage() {
             <div> Game State: {state.isGameOver() ? state.winner() : 'ongoing'}</div>
             <div> white walls {state.wallsAvailable[0]} </div>
             <div> black walls {state.wallsAvailable[1]} </div>
-            <MoveHistory history={history} />
+            <MoveHistory history={history} restoreHistory={restoreHistory} />
         </div>
         <div className='board'>
             <table className='gameTable' cellSpacing={0}>

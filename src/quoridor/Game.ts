@@ -27,7 +27,7 @@ export class Game {
             selectedMove = currentAgent.selectMove(this.state.legalMoves);
         }
         console.log(`Move: ${JSON.stringify(selectedMove)}`);
-        this.state.makeMove(selectedMove);
+        this.state = this.state.makeMove(selectedMove);
         console.log(this.state.toString());
         this.turn++;
     }
