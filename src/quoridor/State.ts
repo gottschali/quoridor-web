@@ -137,6 +137,7 @@ export class State {
             }
         }
         newState.pawnPositions = this.pawnPositions;
+        newState.wallsAvailable = this.wallsAvailable;
 
         // I would like have a type guard here like move typeof PawnMove
         // But the type information is not available at runtime...
