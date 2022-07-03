@@ -1,10 +1,11 @@
-import { Dispatch, useState } from "react"
+import { Dispatch, useEffect, useState } from "react"
+import { Agent } from "../agents/Agent";
 import { Coord } from "../quoridor/Coord";
-import { Orientation, WallMove } from "../quoridor/Move";
+import { Move, Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
+import { State } from "../quoridor/State";
 import './Game.css';
-import { MoveHistory } from "./MoveHistory";
-import { MatrixItem, useGame } from "./useGame";
+import { MatrixItem, } from "./useGame";
 
 /**
  * Stuff to do
@@ -24,7 +25,7 @@ import { MatrixItem, useGame } from "./useGame";
 
 interface WallProps {
     occupied: boolean, row: number, column: number, orientation: Orientation,
-    proposeMove: any,
+    proposeMove?: any,
     highlight: boolean,
     setWall0: Dispatch<Coord>,
     setWall1: Dispatch<Coord>,
@@ -97,14 +98,30 @@ function Square({row, column, highlight, proposeProx}: SquareProps) {
     }
 }
 
-export function DebugPage() {
-    const {state, restoreHistory, turn, step, proposeMove, matrix, history} = useGame();
+interface Props {
+    controlled: boolean,
+    game: {matrix: MatrixItem[][], state: State, turn: number},
+    submitMove: (move: Move) => void,
+    agent: Agent,
+}
+
+export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
+    // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = game;
+    const {state, matrix} = game;
     // We use sentinel impossible values here
     const [wall0, setWall0] = useState<Coord>(new Coord(-1, -1));
     const [wall1, setWall1] = useState<Coord>(new Coord(-1, -1));
 
+    useEffect(() => {
+        if (agent.getMove && !state.isGameOver()) {
+            // maybe need some error handling for invalid moves
+            console.log("Automatically getting move")
+            submitMove(agent.getMove(state));
+        }
+    }, [game.turn]);
+
     const proposeProxy = (c: Coord) => {
-        proposeMove({
+        submitMove({
             source: state.pawnPositions[state.currentPlayer],
             target: c,
         })
@@ -112,12 +129,27 @@ export function DebugPage() {
 
     return (
         <div>
-            <div className='gameInfo'>
-                <button onClick={() => step()}> {turn} </button>
-                <div> Game State: {state.isGameOver() ? state.winner() : 'ongoing'}</div>
-                <div> white walls {state.wallsAvailable[0]} </div>
-                <div> black walls {state.wallsAvailable[1]} </div>
-            </div>
+            <table className='gameInfo'>
+                {/* <button onClick={() => step()}> {turn} </button> */}
+                <tbody>
+                    <tr>
+                        <td> Current agent </td>
+                        <td> {agent.name} </td>
+                    </tr>
+                    <tr>
+                        <td> Game State </td>
+                        <td> {state.isGameOver() ? state.winner() : 'ongoing'}</td>
+                    </tr>
+                    <tr>
+                        <td> white walls </td>
+                        <td> {state.wallsAvailable[0]} </td>
+                    </tr>
+                    <tr>
+                        <td> black walls </td>
+                        <td> {state.wallsAvailable[1]} </td>
+                    </tr>
+                </tbody>
+            </table>
             <div className='board'>
                 <table className='gameTable' cellSpacing={0}>
                     <tbody>
@@ -136,7 +168,7 @@ export function DebugPage() {
                                                 key={j}
                                                 occupied={item === MatrixItem.PlacedWall}
                                                 orientation={i % 2 == 0 ? Orientation.Horizontal : Orientation.Vertical}
-                                                proposeMove={proposeMove}
+                                                 proposeMove={controlled ? submitMove : ()=>{}}
                                                 setWall0={setWall0}
                                                 setWall1={setWall1} />
                                 } else if (item === MatrixItem.BlackPawn) {
@@ -145,7 +177,7 @@ export function DebugPage() {
                                     return <Pawn key={j} player={Player.white} />;
                                 } else if (item === MatrixItem.EmptySquare || item === MatrixItem.PawnTarget) {
                                     return <Square key={j}
-                                                    highlight={item === MatrixItem.PawnTarget}
+                                                    highlight={controlled && item === MatrixItem.PawnTarget}
                                                     row={i}
                                                     column={j}
                                                     proposeProx={proposeProxy} />
@@ -156,8 +188,7 @@ export function DebugPage() {
                     </tbody>
                 </table>
             </div>
-            <MoveHistory history={history} restoreHistory={restoreHistory} />
+            {/* <MoveHistory history={history} restoreHistory={restoreHistory} /> */}
         </div>
     )
 }
-

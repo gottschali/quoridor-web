@@ -1,5 +1,5 @@
 import './App.css';
-import {DebugPage} from './pages/DebugPage';
+import {DebugPage} from './ui/DebugPage';
 
 function App() {
   return (

@@ -26,11 +26,11 @@ td.square, pawn {
 }
 
 
-tr>*:nth-child(2)  {
+.gameTable tr>*:nth-child(2)  {
     border-radius: 3px 0px 0px 3px;
 }
 
-tr>*:nth-last-child(2)  {
+.gameTable tr>*:nth-last-child(2)  {
     border-radius: 0px 3px 3px 0px;
 }
 
@@ -68,9 +68,4 @@ tr>*:nth-last-child(2)  {
 
 .wall.placed {
     background: black;
-}
-
-tr:nth-child(2n-1) {
-    /* height: 1px; */
-    /* width: 1px; */
 }

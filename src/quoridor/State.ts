@@ -136,8 +136,8 @@ export class State {
                 newState.board[i][j] = this.board[i][j];
             }
         }
-        newState.pawnPositions = this.pawnPositions;
-        newState.wallsAvailable = this.wallsAvailable;
+        newState.pawnPositions = [...this.pawnPositions];
+        newState.wallsAvailable = [...this.wallsAvailable];
 
         // I would like have a type guard here like move typeof PawnMove
         // But the type information is not available at runtime...
@@ -286,10 +286,14 @@ export class State {
     }
 
     generateLegalMoves(): Array<Move> {
-        // 1. Generate all possible pawn moves
-        const moves: Array<Move> = this.generatePawnMoves(this.pawnPositions[this.currentPlayer]);
-        // 2. Generate all possible wall placements
-        return moves.concat(this.generateWallMoves());
+        let moves: Array<Move> = [];
+        if (!this.isGameOver()) {
+            // 1. Generate all possible pawn moves
+            moves = this.generatePawnMoves(this.pawnPositions[this.currentPlayer]);
+            // 2. Generate all possible wall placements
+            moves = moves.concat(this.generateWallMoves());
+        }
+        return moves;
     }
 
     get legalMoves(): Array<Move> {

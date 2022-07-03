@@ -73,6 +73,7 @@ export function useGame() {
         console.debug(`Proposed move: ${JSON.stringify(move)}`);
         if (!state.isLegal(move)) {
             console.debug(`Move is illaegal`);
+            return false;
         } else {
             console.debug(`Move: ${JSON.stringify(move)}`);
             history.push(move);
@@ -81,6 +82,7 @@ export function useGame() {
             setStateHistory(stateHistory);
             setState(state.makeMove(move));
             setIndex(turn + 1);
+            return true;
         }
     }
 
