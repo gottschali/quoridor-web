@@ -5,5 +5,5 @@ import { HumanAgent } from "../agents/HumanAgent";
 
 export function DebugPage() {
 
-    return GameController(HumanAgent, RandomAgent, 'observer');
+    return GameController(RandomAgent, RandomAgent, 'observer');
 }

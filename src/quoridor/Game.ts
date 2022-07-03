@@ -1,8 +1,7 @@
-import type { Agent, MachineAgent } from "../agents/Agent";
+import type { MachineAgent } from "../agents/Agent";
 import type { Move } from "./Move";
 import { State, type GameSettings } from "./State";
 
-const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 export class Game {
     state: State;
