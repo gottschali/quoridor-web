@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
 import { Move, PawnMove } from "../quoridor/Move";
+import { Player } from "../quoridor/Player";
 import { State } from "../quoridor/State";
 
 function selectMove(moves: Array<Move>) {
     return moves[Math.floor(Math.random() * moves.length)];
+}
+
+export enum MatrixItem {
+    PawnTarget,
+    WhitePawn,
+    BlackPawn,
+    PlacedWall,
+    UnplacedWall,
+    Cross,
+    EmptySquare,
+    Uninitialized,
 }
 
 export function useGame() {
@@ -12,23 +24,41 @@ export function useGame() {
     const [history, setHistory] = useState<Move[]>([]);
     const [stateHistory, setStateHistory] = useState<State[]>([]);
 
-
-    // TODO
-    // encode every useful information in here
-    // so we do not have to do any silly checks in the UI component
-    // and use enums!
-    const [matrix, setMatrix] = useState<number[][]>(new Array(state.height).fill(0).map( () => new Array(state.width).fill(0)));
+    const [matrix, setMatrix] = useState<MatrixItem[][]>(new Array(state.height).fill(0)
+                                            .map( () => new Array(state.width).fill(MatrixItem.Uninitialized)));
 
     useEffect(() => {
         const newMatrix = new Array(state.height).fill(0).map( () => new Array(state.width).fill(0))
-        console.log(newMatrix);
+
+        for (let i=0;i<state.height; i++) {
+            for (let j=0;j<state.width; j++) {
+                if (i == 0 || i == state.height -1 || j == 0 || j == state.width - 1) {
+                    newMatrix[i][j] = MatrixItem.Uninitialized;
+                } else if (i % 2 == 0 && j % 2 == 0) {
+                    newMatrix[i][j] = MatrixItem.Cross;
+                } else  if (i % 2 != j % 2) {
+                    newMatrix[i][j] = state.board[i][j] ? MatrixItem.PlacedWall : MatrixItem.UnplacedWall;
+                } else {
+                    newMatrix[i][j] = MatrixItem.EmptySquare;
+                }
+            }
+        }
+        // The order is important here because it overwrites EmptySquares
         state.legalMoves.filter(l => 'target' in l)
                         .map(l => (l as PawnMove).target)
                         .forEach(p => {
                             console.log(p)
-                            newMatrix[p.row][p.column] = 1;
+                            newMatrix[p.row][p.column] = MatrixItem.PawnTarget;
                         });
-        console.log(newMatrix);
+        {
+            let {row, column} = state.pawnPositions[Player.white];
+            newMatrix[row][column] = MatrixItem.WhitePawn;
+        }
+        {
+            let {row, column} = state.pawnPositions[Player.black];
+            newMatrix[row][column] = MatrixItem.BlackPawn;
+        }
+
         setMatrix(newMatrix);
 
     }, [turn, state])

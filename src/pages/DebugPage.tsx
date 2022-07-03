@@ -4,7 +4,7 @@ import { Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
 import './Game.css';
 import { MoveHistory } from "./MoveHistory";
-import { useGame } from "./useGame";
+import { MatrixItem, useGame } from "./useGame";
 
 /**
  * Stuff to do
@@ -18,6 +18,7 @@ import { useGame } from "./useGame";
  * - undo functionality
  * - selecting different agents
  * - game settings
+ * - We highligh some walls that are impossible to place...
  */
 
 
@@ -111,58 +112,51 @@ export function DebugPage() {
 
     return (
         <div>
-        <div className='gameInfo'>
-            <button onClick={() => step()}> {turn} </button>
-            <div> Game State: {state.isGameOver() ? state.winner() : 'ongoing'}</div>
-            <div> white walls {state.wallsAvailable[0]} </div>
-            <div> black walls {state.wallsAvailable[1]} </div>
-            <MoveHistory history={history} restoreHistory={restoreHistory} />
-        </div>
-        <div className='board'>
-            <table className='gameTable' cellSpacing={0}>
-                <tbody>
-                {state.board.map((row, i) => (
-                    <tr key={i} style={{}}>
-                        {row.map((square, j) => {
-                            const c = new Coord(i, j);
-                            if (i == 0 || i == state.height -1 || j == 0 || j == state.width - 1) {
-                                return <td key={j} />
-                            }
-                            if (i % 2 == 0 && j % 2 == 0) {
-                                return <td key={j} className='cross'/>
-                            }
-                            if (i % 2 != j % 2) {
-                                return <Wall row={i}
-                                             column={j}
-                                             highlight={wall0.equals(c) || wall1.equals(c)}
-                                             key={j}
-                                             occupied={square}
-                                             orientation={i % 2 == 0 ? Orientation.Horizontal : Orientation.Vertical}
-                                             proposeMove={proposeMove}
-                                             setWall0={setWall0}
-                                             setWall1={setWall1}
-                                    />
-                            } else {
-                                // check for player
+            <div className='gameInfo'>
+                <button onClick={() => step()}> {turn} </button>
+                <div> Game State: {state.isGameOver() ? state.winner() : 'ongoing'}</div>
+                <div> white walls {state.wallsAvailable[0]} </div>
+                <div> black walls {state.wallsAvailable[1]} </div>
+            </div>
+            <div className='board'>
+                <table className='gameTable' cellSpacing={0}>
+                    <tbody>
+                    {matrix.map((row, i) => (
+                        <tr key={i}>
+                            {row.map((item: MatrixItem, j) => {
                                 const c = new Coord(i, j);
-                                if (state.pawnPositions[Player.white].equals(c)) {
-                                    return <Pawn key={j} player={Player.white} />;
-                                } else if (state.pawnPositions[Player.black].equals(c)) {
+                                if (item === MatrixItem.Uninitialized) {
+                                    return <td key={j} />
+                                } else if (item === MatrixItem.Cross) {
+                                    return <td key={j} className='cross'/>
+                                } else if (item === MatrixItem.PlacedWall || item === MatrixItem.UnplacedWall) {
+                                    return <Wall row={i}
+                                                column={j}
+                                                highlight={wall0.equals(c) || wall1.equals(c)}
+                                                key={j}
+                                                occupied={item === MatrixItem.PlacedWall}
+                                                orientation={i % 2 == 0 ? Orientation.Horizontal : Orientation.Vertical}
+                                                proposeMove={proposeMove}
+                                                setWall0={setWall0}
+                                                setWall1={setWall1} />
+                                } else if (item === MatrixItem.BlackPawn) {
                                     return <Pawn key={j} player={Player.black} />;
-                                } else {
+                                } else if (item === MatrixItem.WhitePawn) {
+                                    return <Pawn key={j} player={Player.white} />;
+                                } else if (item === MatrixItem.EmptySquare || item === MatrixItem.PawnTarget) {
                                     return <Square key={j}
-                                                   highlight={matrix[i][j] === 1}
-                                                   row={i}
-                                                   column={j}
-                                                   proposeProx={proposeProxy}/>
+                                                    highlight={item === MatrixItem.PawnTarget}
+                                                    row={i}
+                                                    column={j}
+                                                    proposeProx={proposeProxy} />
                                 }
-                            }
-                        })}
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
+                            })}
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+            <MoveHistory history={history} restoreHistory={restoreHistory} />
         </div>
     )
 }
