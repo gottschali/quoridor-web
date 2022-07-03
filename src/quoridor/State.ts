@@ -208,11 +208,12 @@ export class State {
         // starting from the enemy pawn
         // return true if both pawns can reach the finishing line
 
-        const r1 = this.BFS(this.currentPlayer, move);
-        const r2 = this.BFS(this.opponent, move);
+        const r1 = this._checkCaged(this.currentPlayer, move);
+        const r2 = this._checkCaged(this.opponent, move);
         return r1 && r2;
     }
-    BFS(player: Player, move: WallMove): boolean {
+    _checkCaged(player: Player, move: WallMove): boolean {
+        // Maybe could use instead the BFS subroutine?
         const start = this.pawnPositions[player];
         const visited = new Array(this.height)
             .fill(false)
@@ -230,7 +231,7 @@ export class State {
             if (this.finishLine(v, player)) {
                 return true; // Found a way
             }
-            // There may be problem with opponent pawn interactions
+            // There may be problem with opponent pawn interactions?!
             for (const c of this.generateManhattanMoves(v, visited)) {
                 if (visited[c.row][c.column]) continue;
                 visited[c.row][c.column] = true;
@@ -239,6 +240,44 @@ export class State {
 
         }
         return false;
+    }
+
+    BFS(start: Coord, player: Player) {
+        /*
+         * dist[i][j] = -1 => unvisited
+         * dist[i][j] = -2 => wall
+         */
+        const dist: number[][] = new Array(this.height)
+            .fill(-1)
+            .map(() => new Array(this.width).fill(-1));
+
+        for (let i=0;i<this.height;i++) {
+            for (let j=0;j<this.width; j++) {
+                if (this.board[i][j]) {
+                    dist[i][j] = -2;
+                }
+            }
+        }
+        const q: Coord[] = [start];
+        dist[start.row][start.column] = 0;
+        while (q.length > 0) {
+            const v = q.shift();
+            if (!v) continue;
+            if (this.finishLine(v, player)) {
+                return dist[v.row][v.column];
+            }
+            // TODO: jumps!!!
+            const wallBlocks = v.neighbours(1).map(({row, column}) => dist[row][column] === -2);
+            const targets = v.neighbours(2);
+            const neighbors = targets.filter((c, i) => !wallBlocks[i]);
+
+            for (const c of neighbors) {
+                if (dist[c.row][c.column] !== -1) continue;
+                dist[c.row][c.column] = dist[v.row][v.column] + 1;
+                q.push(c);
+            }
+        }
+        throw new Error('Caging invariant violated: a pawn should always be able to reach the finish line');
     }
 
     generateWallMoves(): Array<Move> {

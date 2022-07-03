@@ -1,10 +1,12 @@
 import { Game } from "./Game";
 import { RandomAgent } from "../agents/RandomAgent";
+import { MinMaxAgent } from "../agents/MinMaxAgent";
 
 
-const game = new Game(RandomAgent, RandomAgent, {boardHeight: 3, boardWidth: 3, walls: 3});
+const game = new Game(RandomAgent, MinMaxAgent(2), {boardHeight: 9, boardWidth: 9, walls: 5});
 console.log("Starting Game")
 game.gameLoop();
-console.log("Stopping Game")
+console.log(`Game over after ${game.turn}`);
+console.log(`The winner is ${game.state.winner()}`);
 
 export {};
