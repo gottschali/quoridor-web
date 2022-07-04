@@ -1,6 +1,7 @@
 
 .board {
     min-height: 100vh;
+    max-width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -11,6 +12,7 @@
     content: "●";
 }
  */
+
 .gameTable {
     font-size: 2em;
 }
@@ -50,7 +52,7 @@ td.square, pawn {
     color: grey;
 }
 
-.square.highlight::after {
+.square.highlight::before {
     content: "●";
 }
 
@@ -68,4 +70,20 @@ td.square, pawn {
 
 .wall.placed {
     background: black;
+}
+
+@media
+only screen and (max-width: 760px),
+(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+    td.square, pawn {
+        display: inline-block;
+        height: 30px;
+        width: 30px;
+    }
+
+    .wall {
+        width: 10px;
+        min-height: 10px;
+    }
 }
