@@ -3,11 +3,6 @@ import { State } from "../quoridor/State";
 
 export type getMove = (state: State) => Move;
 
-export class HumanAgent implements Agent {
-    isMachine=false;
-    name='Human Agent'
-}
-
 
 export interface Agent {
     isMachine: boolean,

@@ -125,7 +125,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
 
     useEffect(() => {
         think();
-    }, [game.turn]);
+    }, [game.turn, agent]);
 
     const proposeProxy = (c: Coord) => {
         submitMove({
