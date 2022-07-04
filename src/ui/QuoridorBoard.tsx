@@ -111,13 +111,20 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
     // We use sentinel impossible values here
     const [wall0, setWall0] = useState<Coord>(new Coord(-1, -1));
     const [wall1, setWall1] = useState<Coord>(new Coord(-1, -1));
+    const [thinking, setThinking] = useState<boolean>(false);
+
+    const think = async () => {
+        if (agent.getMove && !state.isGameOver()) {
+            console.log("Automatically getting move")
+            setThinking(true);
+            await new Promise(r => setTimeout(r, 50));
+            submitMove(agent.getMove(state));
+            setThinking(true);
+        }
+    }
 
     useEffect(() => {
-        if (agent.getMove && !state.isGameOver()) {
-            // maybe need some error handling for invalid moves
-            console.log("Automatically getting move")
-            submitMove(agent.getMove(state));
-        }
+        think();
     }, [game.turn]);
 
     const proposeProxy = (c: Coord) => {
@@ -134,7 +141,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
                 <tbody>
                     <tr>
                         <td> Current agent </td>
-                        <td> {agent.name} </td>
+                        <td> {agent.name} {thinking && ' thinking...'}</td>
                     </tr>
                     <tr>
                         <td> Game State </td>
