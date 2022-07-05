@@ -1,4 +1,4 @@
-import type { Coord } from "./Coord";
+import { Pos } from "./State";
 
 export enum Orientation {
     Vertical='v',
@@ -6,11 +6,11 @@ export enum Orientation {
 }
 
 export type PawnMove = {
-    target: Coord,
+    target: Pos,
 }
 
 export type WallMove = {
-    square: Coord,
+    square: Pos
     orientation: Orientation,
 }
 

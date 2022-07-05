@@ -9,7 +9,6 @@
  */
 
 import { Orientation, type Move, type PawnMove, type WallMove } from "./Move";
-import { Coord } from "./Coord";
 import { Player } from "./Player";
 import deepEqual from 'deep-equal';
 
@@ -34,50 +33,49 @@ const GameSettingsDefaults: MandatoryGameSettings = {
     pawns: 1,
 }
 
-type Pos = number[];
-type Board = Array<Array<boolean>>;
-type Dists = Array<Array<number>>;
-
+export type Pos = number[];
+export type Board = Array<Array<boolean>>;
+export type Dists = Array<Array<number>>;
+export type Notation = string;
 
 // TODO need to still convert between different formats
 const ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 export function isPawnMove(notation: Notation): boolean {
-    return !(notation.endsWith('v') || notation.endsWith('h'));
+    return !(notation.endsWith(Orientation.Vertical) || notation.endsWith(Orientation.Horizontal));
 }
 
-export function coordToString(coord: Coord): string {
-    if (coord.row < 0 || coord.row >= ALPHABET.length)
+export function posToString(pos: Pos): string {
+    if (pos[0] < 0 || pos[0] >= ALPHABET.length)
         throw new Error("Board is to large to be represented by standard notation");
-    return ALPHABET[Math.floor(coord.row / 2)] + Math.ceil(coord.column / 2);
+    return ALPHABET[Math.floor(pos[0] / 2)] + Math.ceil(pos[1] / 2);
 }
 // maybe check validity with a regex
 export function notationToMove(notation: string): Move {
     const row = ALPHABET.indexOf(notation[0]);
-    if (notation.endsWith('v') || notation.endsWith('h')) {
-        const orientation = notation.endsWith('v') ? Orientation.Vertical : Orientation.Horizontal;
+    if (notation.endsWith(Orientation.Vertical) || notation.endsWith(Orientation.Horizontal)) {
+        const orientation = notation.endsWith(Orientation.Vertical) ? Orientation.Vertical : Orientation.Horizontal;
         const column = Number.parseInt(notation.substring(1, notation.length - 1));
         return {
-            square: new Coord(2 * row - 1, column * 2 - 1),
+            square: [2 * row - 1, column * 2 - 1],
             orientation
         }
     } else {
         const column = Number.parseInt(notation.substring(1, notation.length));
         return {
-            target: new Coord(2 * row - 1, column * 2 - 1),
+            target: [2 * row - 1, column * 2 - 1],
         }
     }
 }
 
 export function moveToNotation(move: Move): string {
     if ('target' in move) {
-        return coordToString(move.target);
+        return posToString(move.target);
     } else {
         const or = move.orientation === Orientation.Vertical ? 'v' : 'h';
-        return coordToString(move.square) + or;
+        return posToString(move.square) + or;
     }
 }
-export type Notation = string;
 
 /*
  * The wall logic is heavily flawed atm
@@ -90,7 +88,7 @@ export type Notation = string;
 
 export class State {
     // We can index these variables with currentPlayer
-    pawnPositions: Array<Coord>;
+    pawnPositions: Array<Pos>;
     wallsAvailable: Array<number>;
     // There could be made an argument that we could store which player the wall belongs to
     // But for the game and the sake of simplicity it is not important
@@ -115,8 +113,8 @@ export class State {
         this.shortestPaths = [this.settings.boardHeight, this.settings.boardHeight];
         const middle = Math.ceil(this.settings.boardWidth / 2);
         this.pawnPositions = [
-            new Coord(1, middle).convertToInternal(),
-            new Coord(this.settings.boardHeight, middle).convertToInternal(),
+            [1, middle * 2 - 1],
+            [this.height - 2, middle * 2 - 1],
         ];
         this.board = new Array(this.height)
             .fill(0)
@@ -161,9 +159,9 @@ export class State {
         // Check if a pawn is on the finish line.
         // A draw is not possible?! Is it actually?
         // Not sure: if you can jump over the finish line
-        if (this.pawnPositions[Player.white].row >= this.height - 2) {
+        if (this.pawnPositions[Player.white][0] >= this.height - 2) {
             return Player.white;
-        } else if (this.pawnPositions[Player.black].row <= 1) {
+        } else if (this.pawnPositions[Player.black][0] <= 1) {
             return Player.black;
         }
         return null;
@@ -173,7 +171,7 @@ export class State {
         return this.winner() !== null;
     }
     placeWall(move: WallMove, board: Board): void {
-        const {row, column} = move.square;
+        const [ row, column ] = move.square;
         // We invert the bits that we can place the same wall
         // again to revert the operation
         if (move.orientation === Orientation.Horizontal) {
@@ -235,18 +233,21 @@ export class State {
         }
 
         let reachable = true;
-        // recreate distField if necessary
-        try {
-            const d = newState.BFS(newState.pawnPositions[newState.opponent], newState.opponent, newState.dists1)
-            newState.shortestPaths[newState.opponent] = d;
-        } catch (err) {
-            reachable = false;
-        }
-        try {
-            const d = newState.BFS(newState.pawnPositions[newState.currentPlayer], newState.currentPlayer, newState.dists2);
-            newState.shortestPaths[newState.currentPlayer] = d;
-        } catch (err) {
-            reachable = false;
+        // Otherwise not even possible
+        if (2 * this.settings.walls - this.wallsAvailable[0] - this.wallsAvailable[1] > 4) {
+            // recreate distField if necessary
+            try {
+                const d = newState.BFS(newState.pawnPositions[newState.opponent], newState.opponent, newState.dists1)
+                newState.shortestPaths[newState.opponent] = d;
+            } catch (err) {
+                reachable = false;
+            }
+            try {
+                const d = newState.BFS(newState.pawnPositions[newState.currentPlayer], newState.currentPlayer, newState.dists2);
+                newState.shortestPaths[newState.currentPlayer] = d;
+            } catch (err) {
+                reachable = false;
+            }
         }
         if (!reachable) {
             newState.illegal = true;
@@ -254,41 +255,57 @@ export class State {
         return newState;
     }
 
-    generateManhattanMoves(pos: Coord, board: Board): Array<Coord> {
-        const wallBlocks = pos.neighbours(1).map(({row, column}) => board[row][column]);
-        const targets = pos.neighbours(2);
+    generateManhattanMoves(pos: Pos, board: Board): Array<Pos> {
+        const [row, col] = pos;
+        const ns = [
+            [row + 2, col],
+            [row, col + 2],
+            [row, col - 2],
+            [row - 2, col],
+        ];
 
-        return targets.filter((c, i) => !wallBlocks[i]);
+        const ws = [
+            board[row + 1][col],
+            board[row][col + 1],
+            board[row][col - 1],
+            board[row - 1][col],
+        ];
+        return ns.filter((c, i) => !ws[i]);
     }
 
-    generatePawnMoves(pawnPos: Coord): Array<Move> {
+    generatePawnMoves(pawnPos: Pos): Array<Move> {
         // All adjacent squares
-        // But have to be on the board
-        let simpleMoves = this.generateManhattanMoves(pawnPos, this.board);
+        // But have to be on the
+        const res: Move[] = [];
         const enemyPos = this.pawnPositions[this.opponent];
-        simpleMoves.forEach(c => {
-            if (c.equals(enemyPos)) {
+        this.generateManhattanMoves(pawnPos, this.board).forEach(c => {
+            if (c[0] === enemyPos[0] && c[1] === enemyPos[1]) {
                 // Jumps are possible!
-                const direction = (enemyPos.sub(pawnPos)).mul(1/2);
-                const behind = enemyPos.add(direction);
+                const direction = [(enemyPos[0] - pawnPos[0])/2, (enemyPos[1] - pawnPos[1])/2];
+                const behind = [enemyPos[0] + direction[0], enemyPos[1] + direction[1]];
                 // But there may be a wall behind him
-                if (!this.board[behind.row][behind.column]) {
-                    simpleMoves.push(behind.add(direction));
+                if (!this.board[behind[0]][behind[1]]) {
+                    res.push({
+                            target: [behind[0] + direction[0], behind[1] + direction[1]]
+                        })
                 } else {
                     for (c of this.generateManhattanMoves(enemyPos, this.board)) {
-                        simpleMoves.push(c);
+                        if (enemyPos[0] != pawnPos[0] || enemyPos[1] != pawnPos[1]) {
+                            res.push({
+                                target: c
+                            })
+                        }
                     }
                 }
+            } else {
+                res.push({
+                    target: c
+                });
             }
         });
-        return simpleMoves.filter(p => !p.equals(pawnPos))
-            .filter(p => !p.equals(enemyPos))
-            .map(c => {
-                return {
-                    target: c,
-                }
-            });
+        return res;
     }
+
     finishLine(pos: Pos, player: Player): boolean {
         if (player === Player.white) {
             return pos[0] >= this.height - 2;
@@ -301,9 +318,9 @@ export class State {
         return this.currentPlayer === Player.white ? Player.black : Player.white;
     }
 
-    BFS(start: Coord, player: Player, dists: Dists) {
-        const q: number[][] = [[start.row, start.column]];
-        dists[start.row][start.column] = 0;
+    BFS(start: Pos, player: Player, dists: Dists) {
+        const q: number[][] = [start];
+        dists[start[0]][start[1]] = 0;
         while (q.length > 0) {
             const v = q.shift();
             if (!v) continue;
@@ -356,7 +373,7 @@ export class State {
                 if (this.board[i + 2][j]) continue;
                 if (this.board[i + 1][j - 1] && this.board[i + 1][j + 1]) continue;
                 const move = {
-                    square: new Coord(i, j),
+                    square: [i, j],
                     orientation: Orientation.Vertical,
                 };
                 // if (!this.checkNotCaged(move)) continue;
@@ -370,7 +387,7 @@ export class State {
                 if (this.board[i][j + 2]) continue;
                 if (this.board[i - 1][j + 1] && this.board[i + 1][j + 1]) continue;
                 const move = {
-                        square: new Coord(i, j),
+                        square: [i, j],
                         orientation: Orientation.Horizontal,
                     }
                 // if (!this.checkNotCaged(move)) continue;
@@ -440,10 +457,9 @@ export class State {
                         res += " ";
                     }
                 } else if (i % 2 == 1 && j % 2 == 1) {
-                    const c = new Coord(i, j);
-                    if (this.pawnPositions[Player.white].equals(c)) {
+                    if (this.pawnPositions[Player.white][0] === i && this.pawnPositions[Player.white][1] === j) {
                         res += "○";
-                    } else if (this.pawnPositions[Player.black].equals(c)) {
+                    } else if (this.pawnPositions[Player.black][0] === i && this.pawnPositions[Player.black][1] === j) {
                         res += "●";
                     } else {
                         res += ".";

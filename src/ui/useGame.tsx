@@ -46,16 +46,15 @@ export function useGame() {
         // The order is important here because it overwrites EmptySquares
         state.generatePawnMoves(state.pawnPositions[state.currentPlayer])
                         .map(l => (l as PawnMove).target)
-                        .forEach(p => {
-                            console.log(p)
-                            newMatrix[p.row][p.column] = MatrixItem.PawnTarget;
+                        .forEach(([i, j]) => {
+                            newMatrix[i][j] = MatrixItem.PawnTarget;
                         });
         {
-            let {row, column} = state.pawnPositions[Player.white];
+            let [ row, column ] = state.pawnPositions[Player.white];
             newMatrix[row][column] = MatrixItem.WhitePawn;
         }
         {
-            let {row, column} = state.pawnPositions[Player.black];
+            let [ row, column ] = state.pawnPositions[Player.black];
             newMatrix[row][column] = MatrixItem.BlackPawn;
         }
 

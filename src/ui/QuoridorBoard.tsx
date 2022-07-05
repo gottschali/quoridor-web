@@ -1,9 +1,8 @@
 import { Dispatch, useEffect, useState } from "react"
 import { Agent } from "../agents/Agent";
-import { Coord } from "../quoridor/Coord";
 import { Move, Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
-import { coordToString, moveToNotation, Notation, State } from "../quoridor/State";
+import { posToString, moveToNotation, Notation, State, Pos } from "../quoridor/State";
 import './Game.css';
 import { MatrixItem, } from "./useGame";
 
@@ -27,8 +26,8 @@ interface WallProps {
     occupied: boolean, row: number, column: number, orientation: Orientation,
     proposeMove?: any,
     highlight: boolean,
-    setWall0: Dispatch<Coord>,
-    setWall1: Dispatch<Coord>,
+    setWall0: Dispatch<Pos>,
+    setWall1: Dispatch<Pos>,
 }
 
 function Wall({occupied, row, column, orientation, proposeMove, highlight, setWall0, setWall1}: WallProps) {
@@ -44,12 +43,12 @@ function Wall({occupied, row, column, orientation, proposeMove, highlight, setWa
         } else {
             shiftY = y <= 10 ? -2 : 2;
         }
-        setWall0(new Coord(row, column));
-        setWall1(new Coord(row + shiftY, column + shiftX));
+        setWall0([row, column]);
+        setWall1([row + shiftY, column + shiftX]);
     }
     const handleOut = (e: React.MouseEvent) => {
-        setWall0(new Coord(-1, -1));
-        setWall1(new Coord(-1, -1));
+        setWall0([-1, -1]);
+        setWall1([-2, -2]);
     }
     const handleClick = (e: React.MouseEvent) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -64,7 +63,7 @@ function Wall({occupied, row, column, orientation, proposeMove, highlight, setWa
             shiftY = y <= 10 ? -2 : 0;
         }
         const move: WallMove = {
-            square: new Coord(row + shiftY, column + shiftX),
+            square: [row + shiftY, column + shiftX],
             orientation
         }
         proposeMove(moveToNotation(move));
@@ -90,7 +89,7 @@ interface SquareProps {
     proposeProx: any,
 }
 function Square({row, column, highlight, proposeProx}: SquareProps) {
-    const handleClick = (e: React.MouseEvent) => proposeProx(new Coord(row, column));
+    const handleClick = (e: React.MouseEvent) => proposeProx([row, column]);
     if (highlight) {
         return <td className="square highlight" onClick={handleClick}/>
     } else {
@@ -109,8 +108,8 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = game;
     const {state, matrix} = game;
     // We use sentinel impossible values here
-    const [wall0, setWall0] = useState<Coord>(new Coord(-1, -1));
-    const [wall1, setWall1] = useState<Coord>(new Coord(-1, -1));
+    const [wall0, setWall0] = useState<Pos>([-1, -1]);
+    const [wall1, setWall1] = useState<Pos>([-2, -2]);
     const [thinking, setThinking] = useState<boolean>(false);
 
     const think = async () => {
@@ -127,8 +126,8 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
         think();
     }, [game.turn, agent]);
 
-    const proposeProxy = (c: Coord) => {
-        submitMove(coordToString(c))
+    const proposeProxy = (c: Pos) => {
+        submitMove(posToString(c))
     }
 
     return (
@@ -160,7 +159,6 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
                     {matrix.map((row, i) => (
                         <tr key={i}>
                             {row.map((item: MatrixItem, j) => {
-                                const c = new Coord(i, j);
                                 if (item === MatrixItem.Uninitialized) {
                                     return <td key={j} />
                                 } else if (item === MatrixItem.Cross) {
@@ -168,7 +166,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
                                 } else if (item === MatrixItem.PlacedWall || item === MatrixItem.UnplacedWall) {
                                     return <Wall row={i}
                                                 column={j}
-                                                highlight={wall0.equals(c) || wall1.equals(c)}
+                                                 highlight={(wall0[0] === i && wall0[1] === j) || (wall1[0] === i && wall1[1] === j)}
                                                 key={j}
                                                 occupied={item === MatrixItem.PlacedWall}
                                                 orientation={i % 2 == 0 ? Orientation.Horizontal : Orientation.Vertical}

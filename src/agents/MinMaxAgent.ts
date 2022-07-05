@@ -20,10 +20,9 @@ export function evaluateState(state: State, evalPlayer: Player) {
         // jumps should not be a problem if difference bigger than 1
         // or the distance to the enemy pawn is farther than to the end
         // Wait: we can just play it out
-        return d1 < d2 ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
     }
     // factor in the walls available
-    return (20-d1) + d2 + Math.random();
+    return (30-d1) + d2 + 10 +  Math.random() * 5;
 }
 
 let nodes = 0;

@@ -1,4 +1,3 @@
-import { Coord } from "../quoridor/Coord";
 import { Move, Orientation, WallMove } from "../quoridor/Move";
 import { isPawnMove, State } from "../quoridor/State";
 
