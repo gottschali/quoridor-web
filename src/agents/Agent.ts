@@ -1,7 +1,6 @@
-import { Move } from "../quoridor/Move";
-import { State } from "../quoridor/State";
+import { Notation, State } from "../quoridor/State";
 
-export type getMove = (state: State) => Move;
+export type getMove = (state: State) => Notation;
 
 
 export interface Agent {

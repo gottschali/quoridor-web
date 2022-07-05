@@ -4,6 +4,7 @@ import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { Move } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
+import { Notation } from "../quoridor/State";
 import { Agents, GameSetup } from "./GameSetup";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { useGame } from "./useGame";
@@ -41,7 +42,7 @@ export function GameController() {
 
     const controlled = localTeam === 'gray' || localTeam === game.state.currentPlayer;
 
-    const submitMove = (move: Move) => {
+    const submitMove = (move: Notation) => {
         console.log(`Move was submitted: ${JSON.stringify(move)}`);
         const temp = game.state.currentPlayer;
         if (game.proposeMove(move)) {

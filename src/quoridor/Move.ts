@@ -1,12 +1,11 @@
 import type { Coord } from "./Coord";
 
 export enum Orientation {
-    Vertical=0,
-    Horizontal=1,
+    Vertical='v',
+    Horizontal='h',
 }
 
 export type PawnMove = {
-    source: Coord,
     target: Coord,
 }
 

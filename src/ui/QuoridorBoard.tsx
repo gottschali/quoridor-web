@@ -3,7 +3,7 @@ import { Agent } from "../agents/Agent";
 import { Coord } from "../quoridor/Coord";
 import { Move, Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
-import { State } from "../quoridor/State";
+import { coordToString, moveToNotation, Notation, State } from "../quoridor/State";
 import './Game.css';
 import { MatrixItem, } from "./useGame";
 
@@ -67,7 +67,7 @@ function Wall({occupied, row, column, orientation, proposeMove, highlight, setWa
             square: new Coord(row + shiftY, column + shiftX),
             orientation
         }
-        proposeMove(move);
+        proposeMove(moveToNotation(move));
     }
     let cls = "wall";
     if (occupied) {
@@ -101,7 +101,7 @@ function Square({row, column, highlight, proposeProx}: SquareProps) {
 interface Props {
     controlled: boolean,
     game: {matrix: MatrixItem[][], state: State, turn: number},
-    submitMove: (move: Move) => void,
+    submitMove: (move: Notation) => void,
     agent: Agent,
 }
 
@@ -128,10 +128,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
     }, [game.turn, agent]);
 
     const proposeProxy = (c: Coord) => {
-        submitMove({
-            source: state.pawnPositions[state.currentPlayer],
-            target: c,
-        })
+        submitMove(coordToString(c))
     }
 
     return (

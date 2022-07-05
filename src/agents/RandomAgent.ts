@@ -1,8 +1,9 @@
-import { State } from "../quoridor/State";
+import { Notation, State } from "../quoridor/State";
 
 
-export function getRandomMove(state: State) {
-    return state.legalMoves[Math.floor(Math.random() * state.legalMoves.length)];
+export function getRandomMove(state: State): Notation {
+    const moves = [...state.children.keys()];
+    return moves[Math.random() * moves.length];
 }
 
 export const RandomAgent = {

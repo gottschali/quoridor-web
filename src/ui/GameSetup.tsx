@@ -28,7 +28,7 @@ export const agentList: agentList = {
     naive: MinMaxAgent(1),
     MinMax2: MinMaxAgent(2),
     MinMax3: MinMaxAgent(3),
-    MinMaxHeuristic: MinMaxAgent(4, wallsHeuristic),
+    MinMaxHeuristic: MinMaxAgent(3, wallsHeuristic),
     human: HumanAgent,
     random: RandomAgent,
 }

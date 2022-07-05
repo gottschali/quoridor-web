@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Move, PawnMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
-import { State } from "../quoridor/State";
+import { moveToNotation, Notation, State } from "../quoridor/State";
 
 function selectMove(moves: Array<Move>) {
     return moves[Math.floor(Math.random() * moves.length)];
@@ -21,7 +21,7 @@ export enum MatrixItem {
 export function useGame() {
     const [state, setState] = useState(new State({}));
     const [turn, setIndex] = useState(0);
-    const [history, setHistory] = useState<Move[]>([]);
+    const [history, setHistory] = useState<Notation[]>([]);
     const [stateHistory, setStateHistory] = useState<State[]>([]);
 
     const [matrix, setMatrix] = useState<MatrixItem[][]>(new Array(state.height).fill(0)
@@ -44,7 +44,7 @@ export function useGame() {
             }
         }
         // The order is important here because it overwrites EmptySquares
-        state.legalMoves.filter(l => 'target' in l)
+        state.generatePawnMoves(state.pawnPositions[state.currentPlayer])
                         .map(l => (l as PawnMove).target)
                         .forEach(p => {
                             console.log(p)
@@ -69,13 +69,12 @@ export function useGame() {
         setIndex(turn + 1);
     }
 
-    const proposeMove = (move: Move) => {
-        console.debug(`Proposed move: ${JSON.stringify(move)}`);
+    const proposeMove = (move: Notation) => {
+        console.debug(`Proposed move: ${move}`);
         if (!state.isLegal(move)) {
-            console.debug(`Move is illaegal`);
+            console.debug(`Move is illegal`);
             return false;
         } else {
-            console.debug(`Move: ${JSON.stringify(move)}`);
             history.push(move);
             setHistory(history);
             stateHistory.push(state);
@@ -100,11 +99,5 @@ export function useGame() {
         }
     }
 
-    const step = () => {
-        let selectedMove = selectMove(state.legalMoves);
-        console.debug(`Selected move: ${JSON.stringify(selectedMove)}`);
-        proposeMove(selectedMove);
-    }
-
-    return {apply, state, restoreHistory, turn, step, proposeMove, matrix, history}
+    return {apply, state, restoreHistory, turn, proposeMove, matrix, history}
 }
