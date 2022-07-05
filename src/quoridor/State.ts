@@ -10,7 +10,6 @@
 
 import { Orientation, type Move, type PawnMove, type WallMove } from "./Move";
 import { Player } from "./Player";
-import deepEqual from 'deep-equal';
 
 export interface GameSettings {
     boardWidth?: number,
