@@ -60,8 +60,9 @@ export function GameController() {
         if (currentAgent.getMove && !game.state.isGameOver()) {
             console.log("Automatically getting move")
             setThinking(true);
-            await new Promise(r => setTimeout(r, 50));
-            submitMove(currentAgent.getMove(game.state));
+            await new Promise(r => setTimeout(r, 500));
+            const move = currentAgent.getMove(game.state)
+            submitMove(move);
             setThinking(true);
         }
     }
@@ -72,6 +73,7 @@ export function GameController() {
 
     const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
         console.log('Creating game', settings);
+        setGameOverDialogOpen(true);
         setBlackAgent(blackAgent);
         setWhiteAgent(whiteAgent);
         setSettings(settings);
@@ -88,7 +90,7 @@ export function GameController() {
             /> }
             {!creating &&
              <div>
-             <Switch checked={showSettings} onChange={()=>setShowSettings(!showSettings)} />
+             <Switch checked={!showSettings} onChange={()=>setShowSettings(!showSettings)} />
                 <Box w="100%" p={5} className='board-container' bg="orange.200">
                     <Stack direction='row'>
                         <Badge>

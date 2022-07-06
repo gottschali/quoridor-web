@@ -19,7 +19,8 @@ interface agentList {
     naive: Agent,
     MinMax2: Agent,
     MinMax3: Agent,
-    MinMaxHeuristic: Agent,
+    MinMax4: Agent,
+    MinMax6: Agent,
     human: Agent,
     random: Agent,
 }
@@ -28,11 +29,12 @@ export const agentList: agentList = {
     naive: MinMaxAgent(1),
     MinMax2: MinMaxAgent(2),
     MinMax3: MinMaxAgent(3),
-    MinMaxHeuristic: MinMaxAgent(3, wallsHeuristic),
+    MinMax4: MinMaxAgent(4),
+    MinMax6: MinMaxAgent(6),
     human: HumanAgent,
     random: RandomAgent,
 }
-export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMaxHeuristic' | 'human' | 'random';
+export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMax6' | 'human' | 'random' ;
 
 function AgentSelect({setAgent}: {setAgent: Dispatch<Agent>}) {
 
