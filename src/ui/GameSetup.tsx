@@ -1,14 +1,14 @@
-import { Button, ButtonGroup, FormControl, FormLabel, HStack, NumberInput, NumberInputField, NumberInputStepper, Select, Text } from "@chakra-ui/react";
-import { ReactElement, useState } from "react";
+import { Box, Button, ButtonGroup, Container, Flex, FormControl, FormLabel, Heading, HStack, NumberInput, NumberInputField, NumberInputStepper, Select, Text } from "@chakra-ui/react";
+import { Dispatch, ReactElement, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { MinMaxAgent } from "../agents/MinMaxAgent";
 import { RandomAgent } from "../agents/RandomAgent";
 import { wallsHeuristic } from "../agents/wallsHeuristic";
 import { Player } from "../quoridor/Player";
+import { GameSettings, GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";
 import { GameController } from "./GameController";
 
-export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMaxHeuristic' | 'human' | 'random';
 
 /**
  * Need to figure out how to do this nicely...
@@ -32,15 +32,16 @@ export const agentList: agentList = {
     human: HumanAgent,
     random: RandomAgent,
 }
+export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMaxHeuristic' | 'human' | 'random';
 
-function AgentSelect({selectedAgent, setSelectedAgent}: {selectedAgent: any, setSelectedAgent: any}) {
+function AgentSelect({setAgent}: {setAgent: Dispatch<Agent>}) {
 
     const selectAgent = (agent: Agents) => {
         console.log("setting agent", agentList[agent]);
-        setSelectedAgent(agentList[agent])
+        setAgent(agentList[agent])
     }
 
-    return  <Select placeholder="Select an agent">
+    return  <Select placeholder="human" w='xs'>
         {Object.keys(agentList).map((agent) => {
                     return (<option key={agent} value={agent} onClick={()=>selectAgent(agent as Agents)}>
                             {agent}
@@ -50,36 +51,58 @@ function AgentSelect({selectedAgent, setSelectedAgent}: {selectedAgent: any, set
             </Select>
 }
 
-
 export function GameSetup(props: any) {
+    const [bw, setBw] = useState("9");
+    const [bh, setBh] = useState("9");
+    const [nw, setNw] = useState("10");
+    const [whiteAgent, setWhiteAgent] = useState<Agent>(HumanAgent);
+    const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
 
 
-    return <FormControl maxW='sm' className='gameSetup'>
-                <h2> Configure the game </h2>
-                <div> {props.whiteAgent}, {props.blackAgent} </div>
-                <AgentSelect selectedAgent={props.whiteAgent} setSelectedAgent={props.setWhiteAgent}/>
-                <AgentSelect selectedAgent={props.blackAgent} setSelectedAgent={props.setBlackAgent} />
-            <FormLabel htmlFor='boardSize'>Board Dimension </FormLabel>
-                <HStack id='boardSize'>
-                    <Text>These settings do not yet take effect</Text>
-                    <NumberInput size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}>
+    const createGame = () => {
+        props.submitSettings(whiteAgent, blackAgent, {
+            pawns: 1,
+            boardWidth: Number.parseInt(bw),
+            boardHeight: Number.parseInt(bh),
+            walls: Number.parseInt(nw),
+        })
+    }
+
+    return <Container m={2} p={2} centerContent >
+            <Heading as='h2'> Game Settings </Heading>
+
+                <FormControl className='gameSetup'>
+                    <div> {props.whiteAgent}, {props.blackAgent} </div>
+
+                <Flex>
+                    <AgentSelect setAgent={setWhiteAgent}/>
+                     vs
+                    <AgentSelect setAgent={setBlackAgent} />
+                </Flex>
+                <FormLabel htmlFor='boardSize'>Board Dimension </FormLabel>
+                    <HStack id='boardSize'>
+                        <NumberInput value={bh} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
+                                    onChange={v=>setBh(v)}>
+                            <NumberInputField />
+                        </NumberInput>
+                        <Text>x</Text>
+                        <NumberInput value={bw} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
+                            onChange={v=>setBw(v)}>
+                            <NumberInputField />
+                    </NumberInput>
+                    </HStack>
+
+                <FormLabel htmlFor='numWalls'>Number of walls </FormLabel>
+                <NumberInput value={nw} id='numWalls' defaultValue={10} min={0} max={20}
+                              onChange={v => setNw(v)}>
                         <NumberInputField />
                     </NumberInput>
-                    <Text>x</Text>
-                    <NumberInput size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}>
-                        <NumberInputField />
-                </NumberInput>
-                </HStack>
+                    <ButtonGroup>
+                    <Button colorScheme='green' onClick={createGame}>
+                            Create Game
+                        </Button>
+                    </ButtonGroup>
 
-            <FormLabel htmlFor='numWalls'>Number of walls available</FormLabel>
-                <NumberInput id='numWalls' defaultValue={10} min={0} max={20}>
-                    <NumberInputField />
-                </NumberInput>
-                <ButtonGroup>
-                <Button colorScheme='green' onClick={props.createGame}>
-                        Create Game
-                    </Button>
-                </ButtonGroup>
-
-        </FormControl>
+            </FormControl>
+    </Container>
 }

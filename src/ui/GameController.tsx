@@ -2,9 +2,8 @@ import { Badge, Box, CircularProgress, Flex, Spacer, Stack, Switch } from "@chak
 import { useEffect, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
-import { Move } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
-import { Notation } from "../quoridor/State";
+import { GameSettings, GameSettingsDefaults, MandatoryGameSettings, Notation } from "../quoridor/State";
 import { Agents, GameSetup } from "./GameSetup";
 import { MoveHistory } from "./MoveHistory";
 import { QuoridorBoard } from "./QuoridorBoard";
@@ -26,13 +25,14 @@ export type localTeam = Player | 'gray' | 'observer';
  */
 
 export function GameController() {
-    const game = useGame();
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = useGame();
     const [whiteAgent, setWhiteAgent] = useState<Agent>(HumanAgent);
     const [currentAgent, setCurrentAgent] = useState<Agent>(whiteAgent);
     const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
     const [localTeam, setLocalTeam] = useState<localTeam>('gray');
     const [showSettings, setShowSettings] = useState<boolean>(true);
+    const [settings, setSettings] = useState<GameSettings>(GameSettingsDefaults);
+    const game = useGame(settings);
 
     useEffect(() => {
             setCurrentAgent(game.state.currentPlayer === Player.white ? blackAgent : whiteAgent);
@@ -67,8 +67,11 @@ export function GameController() {
         think();
     }, [game.turn, currentAgent]);
 
-    const createGame = () => {
-        console.log('Creating game');
+    const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
+        console.log('Creating game', settings);
+        setBlackAgent(blackAgent);
+        setWhiteAgent(whiteAgent);
+        game.reset(settings);
         // TODO: Actually reset the game!
         setCreating(false);
         setShowSettings(false);
@@ -76,10 +79,8 @@ export function GameController() {
 
     return <div>
             {showSettings &&
-            <GameSetup whiteAgent={whiteAgent.name} setWhiteAgent={setWhiteAgent}
-                       blackAgent={blackAgent.name} setBlackAgent={setBlackAgent}
-                       creating={creating} setCreating={setCreating}
-                       createGame={createGame}
+            <GameSetup creating={creating} setCreating={setCreating}
+                       submitSettings={createGame}
             /> }
             {!creating &&
              <div>

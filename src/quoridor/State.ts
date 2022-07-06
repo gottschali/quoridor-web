@@ -18,14 +18,14 @@ export interface GameSettings {
     pawns?: number,
 }
 
-type MandatoryGameSettings = {
+export type MandatoryGameSettings = {
     boardWidth: number,
     boardHeight:  number,
     walls: number,
     pawns: number,
 }
 
-const GameSettingsDefaults: MandatoryGameSettings = {
+export const GameSettingsDefaults: MandatoryGameSettings = {
     boardWidth: 9,
     boardHeight:  9,
     walls: 10,

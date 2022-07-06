@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Move, PawnMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
-import { moveToNotation, Notation, State } from "../quoridor/State";
+import { GameSettings, MandatoryGameSettings, moveToNotation, Notation, State } from "../quoridor/State";
 
 function selectMove(moves: Array<Move>) {
     return moves[Math.floor(Math.random() * moves.length)];
@@ -18,8 +18,8 @@ export enum MatrixItem {
     Uninitialized,
 }
 
-export function useGame() {
-    const [state, setState] = useState(new State({}));
+export function useGame(settings: GameSettings) {
+    const [state, setState] = useState(new State(settings));
     const [turn, setIndex] = useState(0);
     const [history, setHistory] = useState<Notation[]>([]);
     const [stateHistory, setStateHistory] = useState<State[]>([]);
@@ -28,6 +28,7 @@ export function useGame() {
                                             .map( () => new Array(state.width).fill(MatrixItem.Uninitialized)));
 
     useEffect(() => {
+        console.log(state.settings);
         const newMatrix = new Array(state.height).fill(0).map( () => new Array(state.width).fill(0))
 
         for (let i=0;i<state.height; i++) {
@@ -61,6 +62,13 @@ export function useGame() {
         setMatrix(newMatrix);
 
     }, [turn, state])
+
+    const reset = (settings: MandatoryGameSettings) => {
+        setState(new State(settings))
+        setHistory([]);
+        setIndex(0);
+        setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(0)));
+    }
 
     const apply = (move: Move) => {
         state.makeMove(move)
@@ -100,5 +108,5 @@ export function useGame() {
         }
     }
 
-    return {apply, state, restoreHistory, turn, proposeMove, matrix, history}
+    return {apply, state, restoreHistory, turn, proposeMove, matrix, history, reset}
 }
