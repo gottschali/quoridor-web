@@ -1,15 +1,20 @@
-import { Move } from "../quoridor/Move";
+import { ListItem, OrderedList } from "@chakra-ui/react";
+import { Notation } from "../quoridor/State";
 
 interface props {
-    history: Move[],
+    history: Notation[],
     restoreHistory: (i: number) => void;
 }
 export function MoveHistory({history, restoreHistory}: props)  {
 
-    return <ol>
+    return <OrderedList>
                 {history.map((move, i) => (
-                    <li key={i} > <button onClick={() => restoreHistory(i)}> {JSON.stringify(move)} </button></li>
+                    <ListItem key={i}>
+                        <button onClick={() => restoreHistory(i)}>
+                            {move}
+                        </button
+                    ></ListItem>
                 ))}
-            </ol>
+            </OrderedList>
 
 }

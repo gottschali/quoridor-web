@@ -1,4 +1,4 @@
-import { Switch } from "@chakra-ui/react";
+import { Badge, Box, CircularProgress, Flex, Spacer, Stack, Switch } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
@@ -6,6 +6,7 @@ import { Move } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
 import { Notation } from "../quoridor/State";
 import { Agents, GameSetup } from "./GameSetup";
+import { MoveHistory } from "./MoveHistory";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { useGame } from "./useGame";
 
@@ -50,6 +51,22 @@ export function GameController() {
         }
     }
 
+    const [thinking, setThinking] = useState<boolean>(false);
+
+    const think = async () => {
+        if (currentAgent.getMove && !game.state.isGameOver()) {
+            console.log("Automatically getting move")
+            setThinking(true);
+            await new Promise(r => setTimeout(r, 50));
+            submitMove(currentAgent.getMove(game.state));
+            setThinking(true);
+        }
+    }
+
+    useEffect(() => {
+        think();
+    }, [game.turn, currentAgent]);
+
     const createGame = () => {
         console.log('Creating game');
         // TODO: Actually reset the game!
@@ -67,10 +84,26 @@ export function GameController() {
             {!creating &&
              <div>
              <Switch checked={showSettings} onChange={()=>setShowSettings(!showSettings)} />
-             <QuoridorBoard  controlled={controlled}
-                            agent={currentAgent}
-                            game={game}
-                            submitMove={submitMove} />
+                <Box w="100%" p={5} className='board-container' bg="orange.200">
+                    <Stack direction='row'>
+                        <Badge>
+                            {currentAgent.name} {thinking && <CircularProgress isIndeterminate color='green.300' />}
+                        </Badge>
+                        {game.state.isGameOver()
+                        ? <Badge> Winner: {game.state.winner() === Player.white ? "○" : "●" }</Badge>
+                         : <Badge> undecided </Badge>
+                        }
+                        <Badge>turn: {game.turn} </Badge>
+                        <Badge>walls ○ : {game.state.wallsAvailable[Player.white]} </Badge>
+                        <Badge>walls ●: {game.state.wallsAvailable[Player.black]} </Badge>
+                    </Stack>
+
+                    <QuoridorBoard  controlled={controlled}
+                                    agent={currentAgent}
+                                    game={game}
+                                    submitMove={submitMove} />
+             </Box>
+                <MoveHistory history={game.history} restoreHistory={game.restoreHistory} />
              </div>}
 
         </div>

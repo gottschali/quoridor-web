@@ -1,7 +1,7 @@
-import { Box, Center, Table, TableContainer, Tbody, Td, Thead, Tr } from "@chakra-ui/react";
+import { Badge, Box, Stack, Table, TableContainer, Tbody, Td, Thead, Tr } from "@chakra-ui/react";
 import { Dispatch, useEffect, useRef, useState } from "react"
 import { Agent } from "../agents/Agent";
-import { Move, Orientation, WallMove } from "../quoridor/Move";
+import { Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
 import { posToString, moveToNotation, Notation, State, Pos } from "../quoridor/State";
 import './Game.css';
@@ -128,57 +128,18 @@ function MoveablePawn({player, position}: {player: Player, position: Pos}) {
 
 export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = game;
-    const {state, matrix} = game;
+    const {state, matrix, turn} = game;
     // We use sentinel impossible values here
     const [wall0, setWall0] = useState<Pos>([-1, -1]);
     const [wall1, setWall1] = useState<Pos>([-2, -2]);
     const [wall2, setWall2] = useState<Pos>([-3, -3]);
-    const [thinking, setThinking] = useState<boolean>(false);
-
-    const think = async () => {
-        if (agent.getMove && !state.isGameOver()) {
-            console.log("Automatically getting move")
-            setThinking(true);
-            await new Promise(r => setTimeout(r, 50));
-            submitMove(agent.getMove(state));
-            setThinking(true);
-        }
-    }
-
-    useEffect(() => {
-        think();
-    }, [game.turn, agent]);
 
     const proposeProxy = (c: Pos) => {
         submitMove(posToString(c))
     }
 
     return (
-        <div className='board-container'>
-            <Box display="flex" alignItems="center">
-                <table className='gameInfo'>
-                    {/* <button onClick={() => step()}> {turn} </button> */}
-                    <tbody>
-                        <tr>
-                            <td> Current agent </td>
-                            <td> {agent.name} {thinking && ' thinking...'}</td>
-                        </tr>
-                        <tr>
-                            <td> Game State </td>
-                            <td> {state.isGameOver() ? state.winner() : 'ongoing'}</td>
-                        </tr>
-                        <tr>
-                            <td> white walls </td>
-                            <td> {state.wallsAvailable[0]} </td>
-                        </tr>
-                        <tr>
-                            <td> black walls </td>
-                            <td> {state.wallsAvailable[1]} </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </Box>
-            <TableContainer className='board' width="100%" bg="orange.200">
+            <TableContainer className='board'>
                 <Table variant='unstyled' display='inline' className='gameTable' cellSpacing={0}>
                     <Thead>
                         <MoveablePawn player={Player.white} position={state.pawnPositions[Player.white]}/>
@@ -227,7 +188,5 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
                     </Tbody>
                 </Table>
             </TableContainer>
-            {/* <MoveHistory history={history} restoreHistory={restoreHistory} /> */}
-        </div>
     )
 }

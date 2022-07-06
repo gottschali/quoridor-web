@@ -93,6 +93,8 @@ export function useGame() {
         try {
             setState(stateHistory[index]);
             setIndex(index);
+            history.splice(index + 1, history.length-index);
+            setHistory(history);
         } catch {
            console.error("State history index out of range")
         }
