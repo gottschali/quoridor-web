@@ -1,12 +1,4 @@
 
-.board {
-    min-height: 100vh;
-    max-width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /*
 .pawn::after {
     content: "●";
@@ -18,75 +10,78 @@
     font-size: 1em;
 }
 
-td.pawn {
-    font-size: 1em;
+.square {
 }
 
-td.square, pawn {
+.square {
     display: inline-block;
-    height: 40px;
-    width: 40px;
+    height: 50px;
+    width: 50px;
+    transition: opacity 0.5s ease-in;
+    opacity: 0;
 }
 
-.moveable {
+.pawn {
     position: relative;
-    transition: all 0.1s ease 0s;
-    height: 40px;
-    width: 40px;
-    border-radius: 20px;
+    transition: all 0.5s cubic-bezier(.99,-0.25,.4,1.42);
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
 }
 
 .white {
     background: white;
-    border: 1px solid black
 }
 
 .black {
-    background: black;
+    background: var(--chakra-colors-chakra-body-text);
 }
 
-.gameTable tr>*:nth-child(2)  {
-    border-radius: 3px 0px 0px 3px;
+/*
+ * Round the ends of the grid lines
+ */
+.gameTable tr>*.wall:nth-child(2)  {
+    border-radius: 5px 0px 0px 5px;
 }
 
-.gameTable tr>*:nth-last-child(2)  {
-    border-radius: 0px 3px 3px 0px;
+.gameTable tr>*.wall:nth-last-child(2)  {
+    border-radius: 0px 5px 5px 0px;
 }
 
-.gameTable>tbody>tr:nth-child(2)>*  {
-    border-radius: 3px 3px 0px 0px;
+.gameTable>tbody>tr:nth-child(2)>*.wall  {
+    border-radius: 5px 5px 0px 0px;
 }
-.gameTable>tbody>tr:nth-last-child(2)>*  {
-    border-radius: 0px 0px 3px 3px;
+.gameTable>tbody>tr:nth-last-child(2)>*.wall  {
+    border-radius: 0px 0px 5px 5px;
 }
 
 .wall.highlight {
-    background: #b37c7c;
+    background: var(--chakra-colors-gray-800);
+    opacity: 0.5;
 }
 
 .square.highlight {
-    /* opacity: 0.5; */
-    color: grey;
-}
-
-.square.highlight::before {
-    content: "●";
+    opacity: 0.5;
+    background: var(--chakra-colors-gray-800);
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
 }
 
 .wall {
+    min-height: 10px;
+    min-width: 10px;
     height: 10px;
     width: 10px;
 }
-.cross {
-    background: black;
-}
 
 .free {
-    background: grey;
+    background:white;
 }
 
 .wall.placed {
-    background: black;
+    background: var(--chakra-colors-chakra-body-text);
+    transition: all 0.5s ease-in;
 }
 
 @media
