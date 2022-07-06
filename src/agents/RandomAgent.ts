@@ -3,7 +3,8 @@ import { Notation, State } from "../quoridor/State";
 
 export function getRandomMove(state: State): Notation {
     const moves = [...state.children.keys()];
-    return moves[Math.random() * moves.length];
+    const sel = moves[Math.floor(Math.random() * moves.length)];
+    return sel;
 }
 
 export const RandomAgent = {
