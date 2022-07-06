@@ -1,4 +1,5 @@
 import { Dispatch, useEffect, useState } from "react"
+import { Dispatch, useEffect, useRef, useState } from "react"
 import { Agent } from "../agents/Agent";
 import { Move, Orientation, WallMove } from "../quoridor/Move";
 import { Player } from "../quoridor/Player";
@@ -104,6 +105,27 @@ interface Props {
     agent: Agent,
 }
 
+function MoveablePawn({player, position}: {player: Player, position: Pos}) {
+    // {player === Player.white ?  "○" :  "●"}
+    const ref = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const pos = []
+        pos[0] = Math.floor(position[0] / 2) + 1;
+        pos[1] = Math.floor(position[1] / 2) + 1;
+        if (ref.current) {
+            ref.current.style.left = pos[1] * 40 + 10*(pos[1]-1) + "px";
+
+            ref.current.style.top = pos[0] * 40 + 10*(pos[0] - 1) + "px";
+            if (Player.white === player) {
+                ref.current.style.top = 40 + pos[0] * 40 + 10*(pos[0] - 1) + "px";
+            } else {
+            }
+        }
+    }, [position]);
+    const color = player === Player.white ? 'white' : 'black'
+    return <div ref={ref} className={"pawn moveable " + color}>  </div>;
+}
+
 export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = game;
     const {state, matrix} = game;
@@ -155,6 +177,8 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
             </table>
             <div className='board'>
                 <table className='gameTable' cellSpacing={0}>
+                    <MoveablePawn player={Player.white} position={state.pawnPositions[Player.white]}/>
+                    <MoveablePawn player={Player.black} position={state.pawnPositions[Player.black]}/>
                     <tbody>
                     {matrix.map((row, i) => (
                         <tr key={i}>
@@ -173,11 +197,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
                                                  proposeMove={controlled ? submitMove : ()=>{}}
                                                 setWall0={setWall0}
                                                 setWall1={setWall1} />
-                                } else if (item === MatrixItem.BlackPawn) {
-                                    return <Pawn key={j} player={Player.black} />;
-                                } else if (item === MatrixItem.WhitePawn) {
-                                    return <Pawn key={j} player={Player.white} />;
-                                } else if (item === MatrixItem.EmptySquare || item === MatrixItem.PawnTarget) {
+                                } else {
                                     return <Square key={j}
                                                     highlight={controlled && item === MatrixItem.PawnTarget}
                                                     row={i}

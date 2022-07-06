@@ -14,7 +14,8 @@
  */
 
 .gameTable {
-    font-size: 2em;
+    border-spacing: 0px;
+    font-size: 1em;
 }
 
 td.pawn {
@@ -23,10 +24,26 @@ td.pawn {
 
 td.square, pawn {
     display: inline-block;
-    height: 50px;
-    width: 50px;
+    height: 40px;
+    width: 40px;
 }
 
+.moveable {
+    position: relative;
+    transition: all 0.1s ease 0s;
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+}
+
+.white {
+    background: white;
+    border: 1px solid black
+}
+
+.black {
+    background: black;
+}
 
 .gameTable tr>*:nth-child(2)  {
     border-radius: 3px 0px 0px 3px;
@@ -57,8 +74,8 @@ td.square, pawn {
 }
 
 .wall {
-    height: 5px;
-    width: 5px;
+    height: 10px;
+    width: 10px;
 }
 .cross {
     background: black;
@@ -76,14 +93,4 @@ td.square, pawn {
 only screen and (max-width: 760px),
 (min-device-width: 768px) and (max-device-width: 1024px)  {
 
-    td.square, pawn {
-        display: inline-block;
-        height: 30px;
-        width: 30px;
-    }
-
-    .wall {
-        width: 10px;
-        min-height: 10px;
-    }
 }
