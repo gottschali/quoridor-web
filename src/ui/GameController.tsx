@@ -1,5 +1,5 @@
-import { Badge, Box, CircularProgress, Flex, Spacer, Stack, Switch } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Badge, Box, Button, CircularProgress, Flex, Spacer, Stack, Switch } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { Player } from "../quoridor/Player";
@@ -31,8 +31,11 @@ export function GameController() {
     const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
     const [localTeam, setLocalTeam] = useState<localTeam>('gray');
     const [showSettings, setShowSettings] = useState<boolean>(true);
-    const [settings, setSettings] = useState<GameSettings>(GameSettingsDefaults);
+    const [settings, setSettings] = useState<MandatoryGameSettings>(GameSettingsDefaults);
     const game = useGame(settings);
+    const cancelRef = useRef<HTMLElement>(null);
+    const [gameOverDialogOpen, setGameOverDialogOpen] = useState<boolean>(true);
+
 
     useEffect(() => {
             setCurrentAgent(game.state.currentPlayer === Player.white ? blackAgent : whiteAgent);
@@ -71,6 +74,7 @@ export function GameController() {
         console.log('Creating game', settings);
         setBlackAgent(blackAgent);
         setWhiteAgent(whiteAgent);
+        setSettings(settings);
         game.reset(settings);
         // TODO: Actually reset the game!
         setCreating(false);
@@ -106,6 +110,30 @@ export function GameController() {
              </Box>
                 <MoveHistory history={game.history} restoreHistory={game.restoreHistory} />
              </div>}
+            <AlertDialog
+                    motionPreset='slideInBottom'
+                    leastDestructiveRef={cancelRef}
+                    onClose={()=>game.reset(GameSettingsDefaults)}
+                    isOpen={gameOverDialogOpen && game.state.isGameOver()}
+                    isCentered
+                >
+                    <AlertDialogOverlay />
 
+                    <AlertDialogContent>
+                    <AlertDialogHeader>The game has ended</AlertDialogHeader>
+                    <AlertDialogCloseButton />
+                    <AlertDialogBody>
+                        A player has reached the opposite side of the board.
+                    </AlertDialogBody>
+                    <AlertDialogFooter>
+                        <Button onClick={()=>setGameOverDialogOpen(false)}>
+                        Back to the board
+                        </Button>
+                        <Button onClick={()=>game.reset(settings)} colorScheme='red' ml={3}>
+                        Reset
+                        </Button>
+                    </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
         </div>
 }
