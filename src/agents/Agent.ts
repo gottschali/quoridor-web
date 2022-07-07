@@ -1,4 +1,5 @@
-import { Notation, State } from "../quoridor/State";
+import { Notation } from "../quoridor/Notation";
+import { State } from "../quoridor/State";
 
 export type getMove = (state: State) => Notation;
 

@@ -1,5 +1,5 @@
 import { ListItem, OrderedList } from "@chakra-ui/react";
-import { Notation } from "../quoridor/State";
+import { Notation } from "../quoridor/Notation";
 
 interface props {
     history: Notation[],

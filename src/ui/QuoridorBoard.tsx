@@ -1,9 +1,10 @@
-import { Badge, Box, Stack, Table, TableContainer, Tbody, Td, Thead, Tr } from "@chakra-ui/react";
+import { Table, TableContainer, Tbody, Thead, Tr } from "@chakra-ui/react";
 import { Dispatch, useEffect, useRef, useState } from "react"
 import { Agent } from "../agents/Agent";
 import { Orientation, WallMove } from "../quoridor/Move";
+import { moveToNotation, Notation, posToString } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
-import { posToString, moveToNotation, Notation, State, Pos } from "../quoridor/State";
+import { State, Pos } from "../quoridor/State";
 import './Game.css';
 import { MatrixItem, } from "./useGame";
 
@@ -70,7 +71,7 @@ function Wall({placed, row, column, orientation, proposeMove, highlight, setWall
             square: [row + shiftY, column + shiftX],
             orientation
         }
-        proposeMove(moveToNotation(move));
+        proposeMove(moveToNotation({ move }));
     }
     let cls = "wall";
     if (placed) {
@@ -135,7 +136,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
     const [wall2, setWall2] = useState<Pos>([-3, -3]);
 
     const proposeProxy = (c: Pos) => {
-        submitMove(posToString(c))
+        submitMove(posToString(c));
     }
 
     return (
@@ -156,7 +157,7 @@ export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
                                                 column={j}
                                                 highlight={(wall2[0] === i && wall2[1] === j) || (wall2[0] === i && wall2[1] === j)}
                                                 key={j}
-                                                placed={state.board[i][j] || state.board[i-1][j] || state.board[i+1][j] || state.board[i][j+1] || state.board[i][j-1]}
+                                                placed={false}
                                                 orientation={Orientation.Vertical}
                                                 proposeMove={()=>{}}
                                                 setWall0={()=>{}}

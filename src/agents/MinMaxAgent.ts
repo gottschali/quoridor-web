@@ -1,12 +1,8 @@
 import { Move } from "../quoridor/Move";
+import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
-import { Notation, State } from "../quoridor/State";
-import { wallsHeuristic } from "./wallsHeuristic";
+import { State } from "../quoridor/State";
 
-
-function getShortestPathFromDist() {
-
-}
 
 export function evaluateState(state: State, evalPlayer: Player) {
     // (already computed) Perform BFS for both pawns to get distance to finishline
@@ -70,6 +66,7 @@ export function MinMaxAgent(depth=5, heuristic: Heuristic=null) {
         let tempMove = "";
         nodes = 0;
         console.log(`Exploring all ${state.children.size} children with a depth of ${depth}`)
+        console.log(state, state.children);
         // const cands = heuristic === null ? state.legalMoves : heuristic(state);
         // console.log(`Heuristic: ${cands.length}`);
         for (const [move, child] of state.children.entries()) {

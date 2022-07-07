@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { Move, PawnMove } from "../quoridor/Move";
+import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
-import { GameSettings, MandatoryGameSettings, moveToNotation, Notation, State } from "../quoridor/State";
-
-function selectMove(moves: Array<Move>) {
-    return moves[Math.floor(Math.random() * moves.length)];
-}
+import { GameSettings, MandatoryGameSettings, State } from "../quoridor/State";
 
 export enum MatrixItem {
     PawnTarget,
@@ -20,7 +17,7 @@ export enum MatrixItem {
 
 export function useGame(settings: GameSettings) {
     const [state, setState] = useState(new State(settings));
-    const [turn, setIndex] = useState(0);
+    const [turn, setTurn] = useState(0);
     const [history, setHistory] = useState<Notation[]>([]);
     const [stateHistory, setStateHistory] = useState<State[]>([]);
 
@@ -33,12 +30,16 @@ export function useGame(settings: GameSettings) {
 
         for (let i=0;i<state.height; i++) {
             for (let j=0;j<state.width; j++) {
-                if (i == 0 || i == state.height -1 || j == 0 || j == state.width - 1) {
+                if (i === 0 || i === state.height -1 || j === 0 || j === state.width - 1) {
                     newMatrix[i][j] = MatrixItem.Uninitialized;
-                } else if (i % 2 == 0 && j % 2 == 0) {
-                    newMatrix[i][j] = MatrixItem.Cross;
+                } else if (i % 2 === 0 && j % 2 === 0) {
+                    if (state.board[i-1][j] === 1 || state.board[i+1][j] === 1 || state.board[i][j+1] === 1 || state.board[i][j-1] === 1) {
+                        newMatrix[i][j] = MatrixItem.PlacedWall;
+                    } else {
+                        newMatrix[i][j] = MatrixItem.Cross;
+                    }
                 } else  if (i % 2 != j % 2) {
-                    newMatrix[i][j] = state.board[i][j] ? MatrixItem.PlacedWall : MatrixItem.UnplacedWall;
+                    newMatrix[i][j] = state.board[i][j] === 1 ? MatrixItem.PlacedWall : MatrixItem.UnplacedWall;
                 } else {
                     newMatrix[i][j] = MatrixItem.EmptySquare;
                 }
@@ -50,15 +51,10 @@ export function useGame(settings: GameSettings) {
                         .forEach(([i, j]) => {
                             newMatrix[i][j] = MatrixItem.PawnTarget;
                         });
-        {
-            let [ row, column ] = state.pawnPositions[Player.white];
-            newMatrix[row][column] = MatrixItem.WhitePawn;
-        }
-        {
-            let [ row, column ] = state.pawnPositions[Player.black];
-            newMatrix[row][column] = MatrixItem.BlackPawn;
-        }
-
+        let [ row, column ] = state.pawnPositions[Player.white];
+        newMatrix[row][column] = MatrixItem.WhitePawn;
+        let [ y, x ] = state.pawnPositions[Player.black];
+        newMatrix[y][x] = MatrixItem.BlackPawn;
         setMatrix(newMatrix);
 
     }, [turn, state])
@@ -66,14 +62,14 @@ export function useGame(settings: GameSettings) {
     const reset = (settings: MandatoryGameSettings) => {
         setState(new State(settings))
         setHistory([]);
-        setIndex(0);
+        setTurn(0);
         setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(0)));
     }
 
     const apply = (move: Move) => {
         state.makeMove(move)
         setState(state);
-        setIndex(turn + 1);
+        setTurn(turn + 1);
     }
 
     const proposeMove = (move: Notation) => {
@@ -87,7 +83,7 @@ export function useGame(settings: GameSettings) {
             stateHistory.push(state);
             setStateHistory(stateHistory);
             setState(state.makeMove(move));
-            setIndex(turn + 1);
+            setTurn(turn + 1);
             return true;
         }
     }
@@ -100,7 +96,7 @@ export function useGame(settings: GameSettings) {
          */
         try {
             setState(stateHistory[index]);
-            setIndex(index);
+            setTurn(index);
             history.splice(index + 1, history.length-index);
             setHistory(history);
         } catch {

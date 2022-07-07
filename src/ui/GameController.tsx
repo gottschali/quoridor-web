@@ -2,8 +2,9 @@ import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogConten
 import { useEffect, useRef, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
+import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
-import { GameSettings, GameSettingsDefaults, MandatoryGameSettings, Notation } from "../quoridor/State";
+import { GameSettings, GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";
 import { Agents, GameSetup } from "./GameSetup";
 import { MoveHistory } from "./MoveHistory";
 import { QuoridorBoard } from "./QuoridorBoard";

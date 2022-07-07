@@ -1,5 +1,5 @@
 import { Move, Orientation, WallMove } from "../quoridor/Move";
-import { isPawnMove, State } from "../quoridor/State";
+import { State } from "../quoridor/State";
 
 export function wallsHeuristic(state: State): Move[] {
     const candidates: Move[] = [];
