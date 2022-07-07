@@ -18,14 +18,15 @@ export function evaluateState(state: State, evalPlayer: Player) {
         // Wait: we can just play it out
     }
     // factor in the walls available
-    return (30-d1) + d2 + 10 +  Math.random() * 5;
+    return d2 - d1 + 0 * state.wallsAvailable[evalPlayer] - 0 * state.wallsAvailable[otherPlayer] + Math.random();
+    // return (30-d1) + d2 + 10 +  Math.random() * 5;
 }
 
 let nodes = 0;
 
 export type Heuristic = null | ((state: State)=>Move[]);
 
-function minMax(state: State, maxPlayer: Player, depth: number, heuristic: Heuristic) {
+function minMax(state: State, alpha: number, beta: number, maxPlayer: Player, depth: number, heuristic: Heuristic, maximizing: boolean): number {
     nodes++;
     if (state.isGameOver()) {
         return state.winner() === maxPlayer ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
@@ -38,42 +39,57 @@ function minMax(state: State, maxPlayer: Player, depth: number, heuristic: Heuri
     // const cands = heuristic === null ? state.legalMoves : heuristic(state);
     // console.log(`Heuristic: ${cands.length}`);
     // console.log(`Recursively exploring all ${state.legalMoves.length} moves with depth ${depth}`);
-    if (state.currentPlayer === maxPlayer) {
-        let t = Number.NEGATIVE_INFINITY;
+    if (maximizing) {
+        let value = Number.NEGATIVE_INFINITY;
         for (const child of state.children.values()) {
-            const value = minMax(child, maxPlayer, depth - 1, heuristic);
-            if (value >= t) {
-                t = value;
+            value = Math.max(value, minMax(child, alpha, beta, maxPlayer, depth - 1, heuristic, false));
+            alpha = Math.max(alpha, value);
+            if (value >= beta) {
+                break;
             }
         }
-        return t;
+        return value;
     } else {
-        let t = Number.POSITIVE_INFINITY;
+        let value = Number.POSITIVE_INFINITY;
         for (const child of state.children.values()) {
-            const value = minMax(child, maxPlayer, depth - 1, heuristic);
-            if (value <= t) {
-                t = value;
+            value = Math.min(value, minMax(child, alpha, beta, maxPlayer, depth - 1, heuristic, true));
+            beta = Math.min(beta, value);
+            if (value <= alpha) {
+                break;
             }
         }
-        return t;
+        return value;
     }
 }
-
+function shuffleArray(arr: Array<any>) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
 
 export function MinMaxAgent(depth=5, heuristic: Heuristic=null) {
     function minMaxWrapper(state: State): Notation {
-        let t = Number.NEGATIVE_INFINITY;
-        let tempMove = "";
         nodes = 0;
         console.log(`Exploring all ${state.children.size} children with a depth of ${depth}`)
         console.log(state, state.children);
         // const cands = heuristic === null ? state.legalMoves : heuristic(state);
         // console.log(`Heuristic: ${cands.length}`);
-        for (const [move, child] of state.children.entries()) {
-            const value = minMax(child, state.currentPlayer, depth-1, heuristic);
+        let alpha = Number.NEGATIVE_INFINITY;
+        let beta = Number.POSITIVE_INFINITY;
+        const kids = [...state.children.entries()];
+        shuffleArray(kids);
+        let t = Number.NEGATIVE_INFINITY;
+        let tempMove = "";
+        for (const [move, child] of kids) {
+            const value = minMax(child, alpha, beta, state.currentPlayer, depth-1, heuristic, false);
             if (value >= t) {
                 t = value;
                 tempMove = move;
+            }
+            alpha = Math.max(alpha, t)
+            if (t >= beta) {
+                break;
             }
         }
         console.log(`Searched spanned ${nodes}`);

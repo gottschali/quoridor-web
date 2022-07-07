@@ -156,17 +156,14 @@ export class State {
             newState.placeWall(move, newState.board);
             newState.wallsAvailable[this.currentPlayer]--;
         }
-        // Otherwise not even possible to cage a pawn
-        if (2 * this.settings.walls - this.wallsAvailable[0] - this.wallsAvailable[1] > 4) {
-            // recreate distField if necessary
-            // TODO: check if we can skip recomputing
-            const d1 = newState.whiteBFS(newState.pawnPositions[Player.white]);
-            if (d1 === -1) newState.illegal = true;
-            newState.shortestPaths[Player.white] = d1;
-            const d = newState.blackBFS(newState.pawnPositions[Player.black]);
-            if (d === -1) newState.illegal = true;
-            newState.shortestPaths[Player.black] = d;
-        }
+        // recreate distField if necessary
+        // TODO: check if we can skip recomputing
+        const d1 = newState.whiteBFS(newState.pawnPositions[Player.white]);
+        if (d1 === -1) newState.illegal = true;
+        newState.shortestPaths[Player.white] = d1;
+        const d = newState.blackBFS(newState.pawnPositions[Player.black]);
+        if (d === -1) newState.illegal = true;
+        newState.shortestPaths[Player.black] = d;
         return newState;
     }
 
