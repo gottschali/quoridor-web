@@ -1,15 +1,16 @@
 {
   "files": {
     "main.css": "/quoridor-web/static/css/main.cbd02605.css",
-    "main.js": "/quoridor-web/static/js/main.b2941607.js",
+    "main.js": "/quoridor-web/static/js/main.a5541ccc.js",
     "static/js/787.28cb0dcd.chunk.js": "/quoridor-web/static/js/787.28cb0dcd.chunk.js",
+    "static/js/MinMaxWorker.774d1c00.worker.js": "/quoridor-web/static/js/MinMaxWorker.774d1c00.worker.js",
     "index.html": "/quoridor-web/index.html",
     "main.cbd02605.css.map": "/quoridor-web/static/css/main.cbd02605.css.map",
-    "main.b2941607.js.map": "/quoridor-web/static/js/main.b2941607.js.map",
+    "main.a5541ccc.js.map": "/quoridor-web/static/js/main.a5541ccc.js.map",
     "787.28cb0dcd.chunk.js.map": "/quoridor-web/static/js/787.28cb0dcd.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.cbd02605.css",
-    "static/js/main.b2941607.js"
+    "static/js/main.a5541ccc.js"
   ]
 }
