@@ -95,8 +95,8 @@ export function useGame(settings: GameSettings): useGame {
             return false;
         } else {
             history.push(move);
-            setHistory(history);
             stateHistory.push(state);
+            setHistory(history);
             setStateHistory(stateHistory);
             setState(state.makeMove(move));
             setTurn(turn + 1);
@@ -110,14 +110,13 @@ export function useGame(settings: GameSettings): useGame {
          * But we should either only allow time travel without making moves
          * or otherwise delete the "future" history becuase otherwise there will a messy tree
          */
-        try {
-            setState(stateHistory[index]);
-            setTurn(index);
-            history.splice(index + 1, history.length-index);
-            setHistory(history);
-        } catch {
-           console.error("State history index out of range")
-        }
+        if (index < 0 || index >= history.length) return;
+        history.splice(index + 1);
+        stateHistory.splice(index + 1);
+        setState(stateHistory[index]);
+        setTurn(index);
+        setHistory(history);
+        setStateHistory(stateHistory);
     }
 
     return {apply, state, restoreHistory, turn, proposeMove, matrix, history, reset, update}

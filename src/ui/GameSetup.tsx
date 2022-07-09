@@ -1,14 +1,11 @@
-import { Box, Button, ButtonGroup, Container, Flex, FormControl, FormLabel, Heading, HStack, NumberInput, NumberInputField, NumberInputStepper, Select, Text } from "@chakra-ui/react";
-import { Dispatch, ReactElement, useState } from "react";
+import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import { Box, Button, ButtonGroup, Center, Container, Flex, FormControl, FormLabel, Heading, HStack, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Spacer, Text, useDisclosure } from "@chakra-ui/react";
+import { ChangeEvent, Dispatch, ReactElement, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { MinMaxAgent } from "../agents/MinMaxAgent";
 import { RandomAgent } from "../agents/RandomAgent";
-import { wallsHeuristic } from "../agents/wallsHeuristic";
-import { Player } from "../quoridor/Player";
-import { GameSettings, GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";
-import { GameController } from "./GameController";
-
+import { MandatoryGameSettings } from "../quoridor/State";
 
 /**
  * Need to figure out how to do this nicely...
@@ -39,11 +36,12 @@ export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' |
 function AgentSelect({setAgent}: {setAgent: Dispatch<Agent>}) {
 
     const selectAgent = (agent: Agents) => {
-        console.log("setting agent", agentList[agent]);
         setAgent(agentList[agent])
     }
 
-    return  <Select placeholder="human" w='xs'>
+    return  <Select placeholder="human" w='xs'
+                    onChange={(e: ChangeEvent<HTMLSelectElement>)=>selectAgent(e.target.value as Agents)}
+            >
         {Object.keys(agentList).map((agent) => {
                     return (<option key={agent} value={agent} onClick={()=>selectAgent(agent as Agents)}>
                             {agent}
@@ -53,16 +51,23 @@ function AgentSelect({setAgent}: {setAgent: Dispatch<Agent>}) {
             </Select>
 }
 
-export function GameSetup(props: any) {
+interface Props {
+    open: boolean;
+    close: ()=>void;
+    submitSettings: (whiteAgent: Agent, blackAgent: Agent, settigns: MandatoryGameSettings)=>void;
+}
+
+export function GameSetup({open, close, submitSettings}: Props) {
     const [bw, setBw] = useState("9");
     const [bh, setBh] = useState("9");
     const [nw, setNw] = useState("10");
     const [whiteAgent, setWhiteAgent] = useState<Agent>(HumanAgent);
     const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
+    const [showAdvanced, setShowAdvanced] = useState(false);
 
 
     const createGame = () => {
-        props.submitSettings(whiteAgent, blackAgent, {
+        submitSettings(whiteAgent, blackAgent, {
             pawns: 1,
             boardWidth: Number.parseInt(bw),
             boardHeight: Number.parseInt(bh),
@@ -70,41 +75,77 @@ export function GameSetup(props: any) {
         })
     }
 
-    return <Container m={2} p={2} centerContent >
-            <Heading as='h2'> Game Settings </Heading>
+    return (
+       <Modal isOpen={open} onClose={close}>
+           <ModalOverlay />
+           <ModalContent>
+               <ModalHeader>
+                   Game Settings
+                <IconButton
+                    size='2em'
+                    onClick={()=>setShowAdvanced(!showAdvanced)}
+                    aria-label='Hide/show advanced settings'
+                    icon={showAdvanced ? <TriangleUpIcon /> : <TriangleDownIcon />}
+                />
+               </ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                    <Container centerContent>
+                        <FormControl className='gameSetup'>
+                        <Flex>
+                            <AgentSelect setAgent={setWhiteAgent} />
+                            <Text fontSize='2xl' fontStyle='bold'> VS </Text>
+                            <AgentSelect setAgent={setBlackAgent} />
+                        </Flex>
 
-                <FormControl className='gameSetup'>
-                    <div> {props.whiteAgent}, {props.blackAgent} </div>
+                    {showAdvanced ?
+                     <>
+                         <HStack>
+                             <FormLabel htmlFor='boardSize'>Board Dimension </FormLabel>
+                             <Spacer />
+                             <FormLabel htmlFor='numWalls'>Number of walls </FormLabel>
+                         </HStack>
+                        <HStack id='boardSize'>
+                            <NumberInput value={bh} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
+                                onChange={v => setBh(v)}>
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
+                            <Text>x</Text>
+                            <NumberInput value={bw} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
+                                onChange={v => setBw(v)}>
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
+                            <Spacer />
+                            <NumberInput value={nw} size='sm' maxW={16} display='flex' id='numWalls' defaultValue={10} min={0} max={20}
+                                onChange={v => setNw(v)}>
+                                <NumberInputField />
+                                <NumberInputStepper>
+                                    <NumberIncrementStepper />
+                                    <NumberDecrementStepper />
+                                </NumberInputStepper>
+                            </NumberInput>
+                        </HStack>
 
-                <Flex>
-                    <AgentSelect setAgent={setWhiteAgent}/>
-                     vs
-                    <AgentSelect setAgent={setBlackAgent} />
-                </Flex>
-                <FormLabel htmlFor='boardSize'>Board Dimension </FormLabel>
-                    <HStack id='boardSize'>
-                        <NumberInput value={bh} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
-                                    onChange={v=>setBh(v)}>
-                            <NumberInputField />
-                        </NumberInput>
-                        <Text>x</Text>
-                        <NumberInput value={bw} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
-                            onChange={v=>setBw(v)}>
-                            <NumberInputField />
-                    </NumberInput>
-                    </HStack>
+                     </> : <div/>
+                    }
+                        <Center>
+                            <Button colorScheme='purple' onClick={createGame}>
+                                Create Game
+                            </Button>
+                        </Center>
 
-                <FormLabel htmlFor='numWalls'>Number of walls </FormLabel>
-                <NumberInput value={nw} id='numWalls' defaultValue={10} min={0} max={20}
-                              onChange={v => setNw(v)}>
-                        <NumberInputField />
-                    </NumberInput>
-                    <ButtonGroup>
-                    <Button colorScheme='green' onClick={createGame}>
-                            Create Game
-                        </Button>
-                    </ButtonGroup>
-
-            </FormControl>
-    </Container>
+                    </FormControl>
+                    </Container>
+                </ModalBody>
+            </ModalContent>
+        </Modal>
+    )
 }

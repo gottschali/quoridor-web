@@ -74,6 +74,7 @@
 
 .free {
     background:white;
+    /*  var(--chakra-colors-gray-200); */
 }
 
 .wall.placed {
