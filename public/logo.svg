@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 135.46666 135.46667"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="../../my-quoridor/public/logo.png"
+   inkscape:export-xdpi="104.81281"
+   inkscape:export-ydpi="104.81281"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#f6ad55"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.6819304"
+     inkscape:cx="185.79841"
+     inkscape:cy="233.95736"
+     inkscape:window-width="1272"
+     inkscape:window-height="2122"
+     inkscape:window-x="1281"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ffffff;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect357"
+       width="7.0707507"
+       height="124.07644"
+       x="28.185543"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#ffffff;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect359"
+       width="7.0707507"
+       height="124.07644"
+       x="64.19796"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#ffffff;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect361"
+       width="7.0707507"
+       height="124.07644"
+       x="100.21037"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#ffffff;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect365"
+       width="7.0707507"
+       height="124.07644"
+       x="-107.28113"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="scale(-1)" />
+    <rect
+       style="fill:#ffffff;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect367"
+       width="7.0707507"
+       height="124.07644"
+       x="-71.268715"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="scale(-1)" />
+    <rect
+       style="fill:#ffffff;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect369"
+       width="7.0707507"
+       height="124.07644"
+       x="-35.256302"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="scale(-1)" />
+    <circle
+       style="fill:#000000;stroke:none;stroke-width:0.740833;stroke-dashoffset:2.8"
+       id="path425"
+       cx="49.900211"
+       cy="85.731468"
+       r="12.972137" />
+    <rect
+       style="fill:#000000;stroke:none;stroke-width:0.152441;stroke-dashoffset:2.8"
+       id="rect430"
+       width="7.0707507"
+       height="65.46711"
+       x="28.185543"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#000000;stroke:none;stroke-width:0.151841;stroke-dashoffset:2.8"
+       id="rect432"
+       width="7.0707507"
+       height="64.952309"
+       x="64.19796"
+       y="-70.64743"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="rotate(90)" />
+    <rect
+       style="fill:#000000;stroke:none;stroke-width:0.209863;stroke-dashoffset:2.8"
+       id="rect437"
+       width="7.0707507"
+       height="124.07644"
+       x="-71.268715"
+       y="-129.77156"
+       rx="3.712379"
+       ry="4.8392901"
+       transform="scale(-1)" />
+    <circle
+       style="fill:#ffffff;stroke:none;stroke-width:0.740833;stroke-dashoffset:2.8"
+       id="circle439"
+       cx="85.342598"
+       cy="49.61549"
+       r="12.972137" />
+  </g>
+</svg>
