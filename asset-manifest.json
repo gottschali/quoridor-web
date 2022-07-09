@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/quoridor-web/static/css/main.cbd02605.css",
-    "main.js": "/quoridor-web/static/js/main.a5541ccc.js",
-    "static/js/787.28cb0dcd.chunk.js": "/quoridor-web/static/js/787.28cb0dcd.chunk.js",
-    "static/js/MinMaxWorker.774d1c00.worker.js": "/quoridor-web/static/js/MinMaxWorker.774d1c00.worker.js",
-    "index.html": "/quoridor-web/index.html",
-    "main.cbd02605.css.map": "/quoridor-web/static/css/main.cbd02605.css.map",
-    "main.a5541ccc.js.map": "/quoridor-web/static/js/main.a5541ccc.js.map",
-    "787.28cb0dcd.chunk.js.map": "/quoridor-web/static/js/787.28cb0dcd.chunk.js.map"
+    "main.css": "/static/css/main.cbd02605.css",
+    "main.js": "/static/js/main.97763077.js",
+    "static/js/787.28cb0dcd.chunk.js": "/static/js/787.28cb0dcd.chunk.js",
+    "static/js/MinMaxWorker.774d1c00.worker.js": "/static/js/MinMaxWorker.774d1c00.worker.js",
+    "index.html": "/index.html",
+    "main.cbd02605.css.map": "/static/css/main.cbd02605.css.map",
+    "main.97763077.js.map": "/static/js/main.97763077.js.map",
+    "787.28cb0dcd.chunk.js.map": "/static/js/787.28cb0dcd.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.cbd02605.css",
-    "static/js/main.a5541ccc.js"
+    "static/js/main.97763077.js"
   ]
 }
