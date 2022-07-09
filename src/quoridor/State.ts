@@ -8,7 +8,7 @@
  */
 
 import { Orientation, type Move, type WallMove } from "./Move";
-import { moveToNotation, Notation, notationToMove } from "./Notation";
+import { moveToNotation, Notation, notationToMove, notationToPos, posToString } from "./Notation";
 import { Player } from "./Player";
 
 export interface GameSettings {
@@ -300,7 +300,7 @@ export class State {
         // 3. The enemy pawn must still be able to win (this will be checked only later)
 
         // Vertical walls
-        for (let i=1;i<this.height-2; i+=2) {
+        for (let i=1;i<this.height-3; i+=2) {
             for (let j=2;j<this.width - 2; j+=2) {
                 if (this.board[i][j] === 1) continue;
                 if (this.board[i + 2][j] === 1) continue;
@@ -313,7 +313,7 @@ export class State {
             }
         }
         // Horizontal walls
-        for (let i=0;i<this.height; i+=2) {
+        for (let i=2;i<this.height-1; i+=2) {
             for (let j=1;j<this.width - 2; j+=2) {
                 if (this.board[i][j] === 1) continue;
                 if (this.board[i][j + 2] === 1) continue;
@@ -375,7 +375,8 @@ export class State {
             for (let j=1;j<this.width-1; j++) {
                 if (i % 2 === 0 && j % 2 === 0) {
                     if (this.board[i][j] === 1) {
-                        res += "■";
+                        // res += "■";
+                        res += "+";
                     } else {
                         res += "+";
                     }
@@ -398,5 +399,82 @@ export class State {
             res += "\n";
         }
         return res;
+    }
+
+    toNotation(): string {
+       let notation = "";
+
+        // Horizontal walls
+        for (let i=2;i<this.height-1; i+=2) {
+            for (let j=1;j<this.width - 2; j+=2) {
+                if (this.board[i][j] === 1 && this.board[i][j + 2] === 1) {
+                    notation += posToString([i, j]) + " ";
+                    j+=2;
+                }
+            }
+        }
+        notation += "/";
+        // Vertical walls
+        for (let j=2;j<this.width - 2; j+=2) {
+            for (let i=1;i<this.height-3; i+=2) {
+                if (this.board[i][j] === 1 && this.board[i+2][j] === 1) {
+                    notation += posToString([i, j]) + " ";
+                    i+=2;
+                }
+            }
+        }
+        notation += "/";
+        notation += posToString(this.pawnPositions[0]);
+        notation += " " + posToString(this.pawnPositions[1]);
+        notation += "/";
+        notation += this.wallsAvailable[0];
+        notation += " " + this.wallsAvailable[1];
+        notation += "/";
+        notation += this.currentPlayer;
+
+        return notation;
+    }
+
+    static fromNotation(notation: string, settings: GameSettings): State {
+        const state = new State(settings);
+        const regex = /(.*)\/(.*)\/(.*) (.*)\/(\d+) (\d+)\/(\d)/;
+        const matches = notation.match(regex);
+        try {
+            if (matches && matches.length === 8) {
+                if (matches[1] !== null) {
+                    const hwalls = matches[1].trim();
+                    if (hwalls.length > 0) {
+                        for (const wall of hwalls.split(" ")) {
+                            const move = notationToMove(wall + Orientation.Horizontal) as WallMove
+                            state.placeWall(move , state.board);
+                        }
+                    }
+                }
+                if (matches[2] !== null) {
+                    const vwalls = matches[2].trim();
+                    if (vwalls.length > 0) {
+                        for (const wall of vwalls.split(" ")) {
+                            const move = notationToMove(wall + Orientation.Vertical) as WallMove
+                            state.placeWall(move, state.board);
+                        }
+                    }
+                }
+                state.pawnPositions[0] = notationToPos(matches[3]);
+                state.pawnPositions[1] = notationToPos(matches[4]);
+                state.wallsAvailable[0] = Number.parseInt(matches[5]);
+                state.wallsAvailable[1] = Number.parseInt(matches[6]);
+                state.currentPlayer = matches[7] === "1" ? Player.black : Player.white;
+
+                state.shortestPaths[Player.white] = state.whiteBFS(state.pawnPositions[Player.white]);
+                state.shortestPaths[Player.black] = state.blackBFS(state.pawnPositions[Player.black]);
+                return state;
+            } else {
+                console.error("invalid matches", matches);
+                throw new Error("Invalid State notation");
+            }
+        } catch (e) {
+            console.log(notation, matches, e);
+            throw new Error("Invalid State notation");
+        }
     }
 }

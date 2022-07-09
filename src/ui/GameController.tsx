@@ -62,7 +62,7 @@ export function GameController() {
             console.log("Automatically getting move")
             setThinking(true);
             await new Promise(r => setTimeout(r, 500));
-            const move = currentAgent.getMove(game.state)
+            const move = await currentAgent.getMove(game.state)
             submitMove(move);
             setThinking(true);
         }
@@ -70,7 +70,7 @@ export function GameController() {
 
     useEffect(() => {
         think();
-    }, [game.turn, currentAgent]);
+    }, [game.turn]);
 
     const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
         console.log('Creating game', settings);
@@ -111,7 +111,7 @@ export function GameController() {
                                     game={game}
                                     submitMove={submitMove} />
              </Box>
-                <MoveHistory history={game.history} restoreHistory={game.restoreHistory} />
+                {/*                 <MoveHistory history={game.history} restoreHistory={game.restoreHistory} /> */}
              </div>}
             <AlertDialog
                     motionPreset='slideInBottom'

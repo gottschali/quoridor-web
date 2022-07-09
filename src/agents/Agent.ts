@@ -1,7 +1,7 @@
 import { Notation } from "../quoridor/Notation";
 import { State } from "../quoridor/State";
 
-export type getMove = (state: State) => Notation;
+export type getMove = (state: State) => Promise<Notation>;
 
 
 export interface Agent {

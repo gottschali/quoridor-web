@@ -2,7 +2,7 @@ import { Notation } from "../quoridor/Notation";
 import { State } from "../quoridor/State";
 
 
-export function getRandomMove(state: State): Notation {
+export async function getRandomMove(state: State): Promise<Notation> {
     const moves = [...state.children.keys()];
     const sel = moves[Math.floor(Math.random() * moves.length)];
     return sel;

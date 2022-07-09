@@ -15,7 +15,19 @@ export enum MatrixItem {
     Uninitialized,
 }
 
-export function useGame(settings: GameSettings) {
+export type useGame = {
+    apply: (move: Move) => void;
+    state: State;
+    restoreHistory: (index: number) => void;
+    turn: number;
+    proposeMove: (move: Notation) => boolean;
+    matrix: MatrixItem[][];
+    history: string[];
+    reset: (settings: MandatoryGameSettings) => void;
+    update: (state: State) => void;
+}
+
+export function useGame(settings: GameSettings): useGame {
     const [state, setState] = useState(new State(settings));
     const [turn, setTurn] = useState(0);
     const [history, setHistory] = useState<Notation[]>([]);
@@ -66,6 +78,10 @@ export function useGame(settings: GameSettings) {
         setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(0)));
     }
 
+    const update = (state: State) => {
+        setState(state);
+    }
+
     const apply = (move: Move) => {
         state.makeMove(move)
         setState(state);
@@ -104,5 +120,5 @@ export function useGame(settings: GameSettings) {
         }
     }
 
-    return {apply, state, restoreHistory, turn, proposeMove, matrix, history, reset}
+    return {apply, state, restoreHistory, turn, proposeMove, matrix, history, reset, update}
 }

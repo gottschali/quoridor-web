@@ -63,9 +63,9 @@ function Wall({placed, row, column, orientation, proposeMove, highlight, setWall
         let shiftX = 0;
         let shiftY = 0;
         if (orientation === Orientation.Horizontal) {
-             shiftX = x <= 10 ? -2 : 0;
+             shiftX = x <= 25 ? -2 : 0;
         } else {
-            shiftY = y <= 10 ? -2 : 0;
+            shiftY = y <= 25 ? -2 : 0;
         }
         const move: WallMove = {
             square: [row + shiftY, column + shiftX],
@@ -127,7 +127,7 @@ function MoveablePawn({player, position}: {player: Player, position: Pos}) {
     return <div ref={ref} className={"pawn " + color}>  </div>;
 }
 
-export function QuoridorBoard({controlled, game, submitMove, agent}: Props) {
+export function QuoridorBoard({controlled, game, submitMove }: Props) {
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = game;
     const {state, matrix, turn} = game;
     // We use sentinel impossible values here
