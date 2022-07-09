@@ -96,9 +96,8 @@ export function GameController() {
                 </Stack>
                 <Box w="100%" p={5} className='board-container' bg="orange.200">
                     <QuoridorBoard controlled={controlled}
-                        agent={currentAgent}
-                        game={game}
-                        submitMove={submitMove} />
+                                   game={game}
+                                   submitMove={submitMove} />
                 </Box>
                 {/*                 <MoveHistory history={game.history} restoreHistory={game.restoreHistory} /> */}
             <GameSetup open={showSettings}

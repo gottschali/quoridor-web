@@ -103,7 +103,6 @@ interface Props {
     controlled: boolean,
     game: {matrix: MatrixItem[][], state: State, turn: number},
     submitMove: (move: Notation) => void,
-    agent: Agent,
 }
 
 function MoveablePawn({player, position}: {player: Player, position: Pos}) {
@@ -140,7 +139,7 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
     }
 
     return (
-            <TableContainer className='board'>
+            <TableContainer bg="orange.200" className='board'>
                 <Table variant='unstyled' display='inline' className='gameTable' cellSpacing={0}>
                     <Thead>
                         <MoveablePawn player={Player.white} position={state.pawnPositions[Player.white]}/>

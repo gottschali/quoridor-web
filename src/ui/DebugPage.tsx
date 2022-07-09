@@ -43,7 +43,7 @@ function Debug() {
                     />
                 <Button onClick={load}>Set from input</Button>
                 <Button onClick={loadNotationFromBoard}>Load from board</Button>
-                <QuoridorBoard controlled={true} game={game} submitMove={game.proposeMove} agent={HumanAgent}/>
+                <QuoridorBoard controlled={true} game={game} submitMove={game.proposeMove} />
             </Box>
     )
 }
