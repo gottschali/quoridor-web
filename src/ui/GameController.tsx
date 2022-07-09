@@ -61,7 +61,7 @@ export function GameController() {
         if (currentAgent.getMove && !game.state.isGameOver()) {
             console.log("Automatically getting move")
             setThinking(true);
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => setTimeout(r, 200));
             const move = await currentAgent.getMove(game.state)
             submitMove(move);
             setThinking(true);
