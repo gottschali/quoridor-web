@@ -158,10 +158,10 @@ export class State {
         }
         // recreate distField if necessary
         // TODO: check if we can skip recomputing
-        const d1 = newState.whiteBFS(newState.pawnPositions[Player.white]);
+        const d1 = newState.whiteBFS();
         if (d1 === -1) newState.illegal = true;
         newState.shortestPaths[Player.white] = d1;
-        const d = newState.blackBFS(newState.pawnPositions[Player.black]);
+        const d = newState.blackBFS();
         if (d === -1) newState.illegal = true;
         newState.shortestPaths[Player.black] = d;
         return newState;
@@ -220,14 +220,19 @@ export class State {
         return this.currentPlayer === Player.white ? Player.black : Player.white;
     }
 
-    whiteBFS(start: Pos): number {
-        const q: number[][] = [start];
-        this.board[start[0]][start[1]] = 0;
+    whiteBFS(): number {
+        // The other direction: start on the other side
+        const q: number[][] = [];
+        for (let i=1;i<this.width;i+=2) {
+            q.push([this.height -2, i]);
+            this.board[this.height -2][i] = 0;
+        }
+        const [pr, pc] = this.pawnPositions[Player.white];
         while (q.length > 0) {
             const v = q.shift();
             if (!v) continue;
             const [row, col] = v;
-            if (row >= this.height - 2) {
+            if (row === pr && col === pc) {
                 return this.board[row][col];
             }
             const ns = [
@@ -252,16 +257,20 @@ export class State {
         return -1;
     }
 
-    blackBFS(start: Pos) {
+    blackBFS() {
         // Shift everything by -1, -1 when storing or accessing dists
         // This way we can use the empty spaces between walls to store this in the board matrix
-        const q: number[][] = [start];
-        this.board[start[0] - 1][start[1] - 1] = 0;
+        const q: number[][] = [];
+        for (let i=1;i<this.width;i+=2) {
+            q.push([1, i]);
+            this.board[0][i-1] = 0;
+        }
+        const [pr, pc] = this.pawnPositions[Player.black];
         while (q.length > 0) {
             const v = q.shift();
             if (!v) continue;
             const [row, col] = v;
-            if (row <= 1) {
+            if (row === pr && col === pc) {
                 return this.board[row-1][col-1];
             }
             const ns = [
@@ -465,8 +474,8 @@ export class State {
                 state.wallsAvailable[1] = Number.parseInt(matches[6]);
                 state.currentPlayer = matches[7] === "1" ? Player.black : Player.white;
 
-                state.shortestPaths[Player.white] = state.whiteBFS(state.pawnPositions[Player.white]);
-                state.shortestPaths[Player.black] = state.blackBFS(state.pawnPositions[Player.black]);
+                state.shortestPaths[Player.white] = state.whiteBFS();
+                state.shortestPaths[Player.black] = state.blackBFS();
                 return state;
             } else {
                 console.error("invalid matches", matches);
