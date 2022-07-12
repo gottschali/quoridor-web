@@ -4,30 +4,17 @@ import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
-import { GameSettings, GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";
+import {  GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";
 import { GameActions } from "./GameActions";
 import { GameInformation } from "./GameInformation";
 import { GameOverDialog } from "./GameOverDialog";
-import { Agents, GameSetup } from "./GameSetup";
+import { GameSetup } from "./GameSetup";
 import { MoveHistory } from "./MoveHistory";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { Rules } from "./Rules";
 import { useGame } from "./useGame";
 
 export type localTeam = Player | 'gray' | 'observer';
-
-/**
- *
-   Not really nice
-   maybe just have a game Settings state here
-   (this should also include the different agens)
-   Then pass this to the settings components
-   This settings components should be a able to trigger a reset
-   Then new settings are loaded and a new game is created
-
-   Similary we should have a controls component which can
-   reset, undo, pause, ...
- */
 
 export function GameController() {
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = useGame();
@@ -41,17 +28,6 @@ export function GameController() {
     const [gameOverDialogOpen, setGameOverDialogOpen] = useState<boolean>(true);
     const [showRules, setShowRules] = useState(false);
 
-
-
-    useEffect(() => {
-            setCurrentAgent(game.state.currentPlayer === Player.white ? blackAgent : whiteAgent);
-    }, [whiteAgent, blackAgent]);
-
-
-    const [creating, setCreating] = useState(true);
-
-    const controlled = localTeam === 'gray' || localTeam === game.state.currentPlayer;
-
     const submitMove = (move: Notation) => {
         console.log(`Move was submitted: ${JSON.stringify(move)}`);
         const temp = game.state.currentPlayer;
@@ -60,12 +36,18 @@ export function GameController() {
         }
     }
 
-    const think = async () => {
-        if (currentAgent.getMove && !game.state.isGameOver()) {
-            console.log("Automatically getting move")
+    const think = async (agent?: Agent) => {
+        agent = agent !== undefined ? agent : currentAgent;
+        console.log("think", agent, game.state.isGameOver());
+        if (agent.getMove && !game.state.isGameOver()) {
+            console.log("think2")
             await new Promise(r => setTimeout(r, 200));
-            const move = await currentAgent.getMove(game.state)
+            console.log(game.state, await agent.getMove(game.state));
+            const move = await agent.getMove(game.state)
+            console.log("yeetus", move);
             submitMove(move);
+        } else {
+            console.log("thinkOUT", agent, game.state.isGameOver());
         }
     }
 
@@ -74,28 +56,43 @@ export function GameController() {
     }, [game.turn]);
 
     const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
-        console.log('Creating game', settings);
-        setGameOverDialogOpen(true);
+        if (currentAgent.terminate) {
+            currentAgent.terminate();
+        }
         setBlackAgent(blackAgent);
         setWhiteAgent(whiteAgent);
         setSettings(settings);
-        game.reset(settings);
-        // TODO: Actually reset the game!
-        setCreating(false);
+        setGameOverDialogOpen(true);
         setShowSettings(false);
+        game.reset(settings);
+        setCurrentAgent(whiteAgent);
+        think(whiteAgent);
+    }
+
+    const reset = () => {
+        if (currentAgent.terminate) {
+            currentAgent.terminate();
+        }
+        setGameOverDialogOpen(true);
+        setShowSettings(false);
+        game.reset(settings);
+        setCurrentAgent(whiteAgent);
+        setTimeout(()=> {
+            think(whiteAgent);
+        }, 200);
     }
 
     return (<div>
                 <Stack>
                     <GameInformation currentAgent={currentAgent} game={game} />
                     <GameActions setShowSettings={setShowSettings}
-                                 reset={()=>game.reset(game.state.settings)}
+                                 reset={reset}
                                  undo={()=>game.restoreHistory(game.turn-1)}
                                  showRules={()=>setShowRules(true)}
                     />
                 </Stack>
                 <Box w="100%" p={5} className='board-container' bg="orange.200">
-                    <QuoridorBoard controlled={controlled}
+                    <QuoridorBoard controlled={!currentAgent.isMachine}
                                    game={game}
                                    submitMove={submitMove} />
                 </Box>

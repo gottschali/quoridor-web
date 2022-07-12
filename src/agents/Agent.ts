@@ -8,13 +8,14 @@ export interface Agent {
     isMachine: boolean,
     name: string,
     getMove?: getMove,
+    terminate?: () => void;
 }
 
-export interface HumanAgent extends MachineAgent {
-    getmove?: getMove,
+export interface HumanAgent extends Agent {
+
 }
 
-export interface MachineAgent {
+export interface MachineAgent extends Agent {
     isMachine: boolean,
     name: string,
     getMove: getMove,

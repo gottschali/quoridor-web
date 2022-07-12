@@ -74,7 +74,7 @@ export function MinMaxAgent(depth=5): MachineAgent {
         return tempMove;
     }
 
-    function teardown() {
+    function terminate() {
         for (const worker of workers) {
             worker.terminate();
         }
@@ -95,5 +95,6 @@ export function MinMaxAgent(depth=5): MachineAgent {
         isMachine: true,
         name: 'MinMaxAgent',
         getMove: minMaxWrapper,
+        terminate,
     }
 }

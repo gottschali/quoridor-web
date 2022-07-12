@@ -13,26 +13,26 @@ export function GameInformation({currentAgent, game}: Props) {
 
     return (
             <Center>
-                <HStack>
+                <HStack >
                     {game.state.isGameOver()
-                        ? <Badge colorScheme={!currentAgent.isMachine ? 'green' : 'red'}> Winner: {icon}</Badge>
-                        : <Badge> Winner: undecided </Badge>
+                        ? <Badge fontSize='ml' colorScheme={!currentAgent.isMachine ? 'green' : 'red'}> Winner: {icon}</Badge>
+                        : <Badge fontSize='ml'> Winner: undecided </Badge>
                     }
-                    <Badge variant={game.state.currentPlayer === Player.white ? 'outline' : 'solid'} colorScheme='blackAlpha'>
+                    <Badge fontSize='ml' variant={game.state.currentPlayer === Player.white ? 'outline' : 'solid'} colorScheme='blackAlpha'>
                         turn: {game.turn}
                     </Badge>
-                    <Badge variant='outline' colorScheme='blackAlpha'>
+                    <Badge fontSize='ml'  variant='outline' colorScheme='blackAlpha'>
                         <Text color='black'>
                         walls ○ : {game.state.wallsAvailable[Player.white]}
                         </Text>
                     </Badge>
-                    <Badge variant='solid' colorScheme='blackAlpha'>
+                    <Badge fontSize='ml' variant='solid' colorScheme='blackAlpha'>
                         walls ●: {game.state.wallsAvailable[Player.black]}
                     </Badge>
-                    <Badge>Player: {currentAgent.name}
+                    <Badge fontSize='ml'>Player: {currentAgent.name}
                         {icon}
                     </Badge>
-                    <Badge>
+                    <Badge fontSize='ml'>
                         {currentAgent.isMachine && !game.state.isGameOver() && <CircularProgress isIndeterminate size='1em'/>}
                         {!currentAgent.isMachine && 'Your turn'}
                     </Badge>

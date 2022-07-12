@@ -74,8 +74,9 @@ export function useGame(settings: GameSettings): useGame {
     const reset = (settings: MandatoryGameSettings) => {
         setState(new State(settings))
         setHistory([]);
+        setStateHistory([]);
         setTurn(0);
-        setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(0)));
+        setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(MatrixItem.Uninitialized)));
     }
 
     const update = (state: State) => {

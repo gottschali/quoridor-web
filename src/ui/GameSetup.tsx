@@ -5,6 +5,7 @@ import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { MinMaxAgent } from "../agents/MinMaxAgent";
 import { RandomAgent } from "../agents/RandomAgent";
+import { Player } from "../quoridor/Player";
 import { MandatoryGameSettings } from "../quoridor/State";
 
 /**
@@ -13,37 +14,44 @@ import { MandatoryGameSettings } from "../quoridor/State";
  */
 
 interface agentList {
-    naive: Agent,
+    human: Agent,
     MinMax2: Agent,
+    random: Agent,
     MinMax3: Agent,
     MinMax4: Agent,
     MinMaxINF: Agent,
-    human: Agent,
-    random: Agent,
+    naive: Agent,
 }
 
 export const agentList: agentList = {
-    naive: MinMaxAgent(1),
+    human: HumanAgent,
     MinMax2: MinMaxAgent(2),
+    random: RandomAgent,
+    naive: MinMaxAgent(1),
     MinMax3: MinMaxAgent(3),
     MinMax4: MinMaxAgent(4),
     MinMaxINF: MinMaxAgent(Number.POSITIVE_INFINITY),
-    human: HumanAgent,
-    random: RandomAgent,
 }
 export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' | 'human' | 'random' ;
 
-function AgentSelect({setAgent}: {setAgent: Dispatch<Agent>}) {
-
-    const selectAgent = (agent: Agents) => {
-        setAgent(agentList[agent])
+interface AgentSelectProps {
+    setAgent: Dispatch<Agent>;
+    player: Player;
+}
+function AgentSelect({setAgent, player}: AgentSelectProps) {
+    const onChange = (e: ChangeEvent<HTMLSelectElement>)=>{
+        setAgent(agentList[e.target.value as Agents])
     }
 
-    return  <Select placeholder="human" w='xs'
-                    onChange={(e: ChangeEvent<HTMLSelectElement>)=>selectAgent(e.target.value as Agents)}
+    return  <Select w='xs'
+                    onChange={onChange}
+                    m={2}
+                    bg={player === Player.white ? "white" : "black"}
+                    color={player === Player.white ? "black" : "white"}
             >
         {Object.keys(agentList).map((agent) => {
-                    return (<option key={agent} value={agent} onClick={()=>selectAgent(agent as Agents)}>
+                    return (
+                        <option key={agent} value={agent}>
                             {agent}
                         </option>
                     )
@@ -67,6 +75,7 @@ export function GameSetup({open, close, submitSettings}: Props) {
 
 
     const createGame = () => {
+        console.log("submit", whiteAgent, blackAgent);
         submitSettings(whiteAgent, blackAgent, {
             pawns: 1,
             boardWidth: Number.parseInt(bw),
@@ -93,9 +102,9 @@ export function GameSetup({open, close, submitSettings}: Props) {
                     <Container centerContent>
                         <FormControl className='gameSetup'>
                         <Flex>
-                            <AgentSelect setAgent={setWhiteAgent} />
-                            <Text fontSize='2xl' fontStyle='bold'> VS </Text>
-                            <AgentSelect setAgent={setBlackAgent} />
+                            <AgentSelect setAgent={setWhiteAgent} player={Player.white}/>
+                            <Text m={2} fontSize='2xl' fontStyle='bold'> VS </Text>
+                            <AgentSelect setAgent={setBlackAgent} player={Player.black}/>
                         </Flex>
 
                     {showAdvanced ?
@@ -105,7 +114,7 @@ export function GameSetup({open, close, submitSettings}: Props) {
                              <Spacer />
                              <FormLabel htmlFor='numWalls'>Number of walls </FormLabel>
                          </HStack>
-                        <HStack id='boardSize'>
+                         <HStack id='boardSize' p={2} >
                             <NumberInput value={bh} size='sm' maxW={16} display='flex' defaultValue={9} min={3} max={20}
                                 onChange={v => setBh(v)}>
                                 <NumberInputField />
@@ -137,7 +146,7 @@ export function GameSetup({open, close, submitSettings}: Props) {
                      </> : <div/>
                     }
                         <Center>
-                            <Button colorScheme='purple' onClick={createGame}>
+                            <Button bg='orange.200' onClick={createGame}>
                                 Create Game
                             </Button>
                         </Center>
