@@ -1,38 +1,37 @@
 import { AlertDialog, AlertDialogBody, AlertDialogCloseButton, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button } from "@chakra-ui/react";
 import { useRef } from "react";
-import { Player } from "../quoridor/Player";
 
 interface Props {
-    reset: ()=>void;
+    playout: ()=>void;
     open: boolean;
     close: ()=>void;
-    winner: Player|null;
 }
 
-export function GameOverDialog({reset, open, close,winner}: Props) {
+export function PlayOutDialog({playout, open, close}: Props) {
     const cancelRef = useRef<HTMLElement>(null);
     return (
         <AlertDialog
             motionPreset='slideInBottom'
             leastDestructiveRef={cancelRef}
-            onClose={reset}
+            onClose={()=>{}}
             isOpen={open}
             isCentered
         >
             <AlertDialogOverlay />
 
             <AlertDialogContent>
-                <AlertDialogHeader>The game has ended</AlertDialogHeader>
+                <AlertDialogHeader>All walls have been placed!</AlertDialogHeader>
                 <AlertDialogCloseButton />
                 <AlertDialogBody>
-                    The player {winner === Player.white ? "○" : "●"} has reached the opposite side of the board.
+                    The game can be played out automatically
+                    or you can finish it by hand if you wish so.
                 </AlertDialogBody>
                 <AlertDialogFooter>
                     <Button onClick={close}>
-                        Back to the board
+                        Manually
                     </Button>
-                    <Button onClick={reset} colorScheme='red' ml={3}>
-                        Reset
+                    <Button onClick={playout} colorScheme='green' ml={3}>
+                        Automatically
                     </Button>
                 </AlertDialogFooter>
             </AlertDialogContent>

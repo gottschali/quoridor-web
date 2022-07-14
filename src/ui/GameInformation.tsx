@@ -15,7 +15,7 @@ export function GameInformation({currentAgent, game}: Props) {
             <Center>
                 <HStack >
                     {game.state.isGameOver()
-                        ? <Badge fontSize='ml' colorScheme={!currentAgent.isMachine ? 'green' : 'red'}> Winner: {icon}</Badge>
+                        ? <Badge fontSize='ml' colorScheme={currentAgent.isMachine ? 'green' : 'red'}> Winner: {icon}</Badge>
                         : <Badge fontSize='ml'> Winner: undecided </Badge>
                     }
                     <Badge fontSize='ml' variant={game.state.currentPlayer === Player.white ? 'outline' : 'solid'} colorScheme='blackAlpha'>

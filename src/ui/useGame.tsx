@@ -28,7 +28,7 @@ export type useGame = {
 }
 
 export function useGame(settings: GameSettings): useGame {
-    const [state, setState] = useState(new State(settings));
+    const [state, setState] = useState(new State(settings, true));
     const [turn, setTurn] = useState(0);
     const [history, setHistory] = useState<Notation[]>([]);
     const [stateHistory, setStateHistory] = useState<State[]>([]);
@@ -72,7 +72,7 @@ export function useGame(settings: GameSettings): useGame {
     }, [turn, state])
 
     const reset = (settings: MandatoryGameSettings) => {
-        setState(new State(settings))
+        setState(new State(settings, true))
         setHistory([]);
         setStateHistory([]);
         setTurn(0);

@@ -5,6 +5,7 @@ import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { MinMaxAgent } from "../agents/MinMaxAgent";
 import { RandomAgent } from "../agents/RandomAgent";
+import { ShortestPathAgent } from "../agents/ShortestPathAgent";
 import { Player } from "../quoridor/Player";
 import { MandatoryGameSettings } from "../quoridor/State";
 
@@ -21,6 +22,7 @@ interface agentList {
     MinMax4: Agent,
     MinMaxINF: Agent,
     naive: Agent,
+    shortest: Agent,
 }
 
 export const agentList: agentList = {
@@ -31,8 +33,9 @@ export const agentList: agentList = {
     MinMax3: MinMaxAgent(3),
     MinMax4: MinMaxAgent(4),
     MinMaxINF: MinMaxAgent(Number.POSITIVE_INFINITY),
+    shortest: ShortestPathAgent,
 }
-export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' | 'human' | 'random' ;
+export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' | 'human' | 'random' | 'shortest';
 
 interface AgentSelectProps {
     setAgent: Dispatch<Agent>;

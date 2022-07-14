@@ -7,7 +7,7 @@ import { shuffleArray } from "./minMax";
 
 export let nodes = 0;
 
-const workers = new Array(navigator.hardwareConcurrency || 4).fill(null)
+let workers = new Array(navigator.hardwareConcurrency || 4).fill(null)
     .map(()=> new Worker());
 
 export function MinMaxAgent(depth=5): MachineAgent {
@@ -78,6 +78,8 @@ export function MinMaxAgent(depth=5): MachineAgent {
         for (const worker of workers) {
             worker.terminate();
         }
+        workers = new Array(navigator.hardwareConcurrency || 4).fill(null)
+            .map(()=> new Worker());
     }
 
     // const not = " i1 //a5 i5/9 10/1";

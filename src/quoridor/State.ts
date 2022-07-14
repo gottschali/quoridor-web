@@ -7,7 +7,7 @@
  * - But I would restrict it to a 2-player game
  */
 
-import { Orientation, type Move, type WallMove } from "./Move";
+import { Orientation, PawnMove, type Move, type WallMove } from "./Move";
 import { moveToNotation, Notation, notationToMove, notationToPos, posToString } from "./Notation";
 import { Player } from "./Player";
 
@@ -51,7 +51,7 @@ export class State {
     private precomputedMoves: Set<Notation> | undefined;
     private _children: Map<Notation, State> | undefined;
 
-    constructor(settings: GameSettings = GameSettingsDefaults) {
+    constructor(settings: GameSettings = GameSettingsDefaults, root?: boolean) {
         this.settings = { ...GameSettingsDefaults, ...settings };
         this.wallsAvailable = [this.settings.walls, this.settings.walls];
         // The size of the internal matrix representation
@@ -67,14 +67,19 @@ export class State {
             .fill(0)
             .map(() => new Int8Array(this.width).fill(-1));
 
-        // Hack: surround the board with walls that we do not have to do bounds checking
-        for (let i=0;i<this.height;i++) {
-            this.board[i][0] = 1;
-            this.board[i][this.width - 1] = 1;
-        }
-        for (let j=0;j<this.width;j++) {
-            this.board[0][j] = 1;
-            this.board[this.height - 1][j] = 1;
+        if (root) {
+            // Hack: surround the board with walls that we do not have to do bounds checking
+            for (let i=0;i<this.height;i++) {
+                this.board[i][0] = 1;
+                this.board[i][this.width - 1] = 1;
+            }
+            for (let j=0;j<this.width;j++) {
+                this.board[0][j] = 1;
+                this.board[this.height - 1][j] = 1;
+            }
+
+            this.whiteBFS();
+            this.blackBFS();
         }
         // White begins
         this.currentPlayer = Player.white;
@@ -106,6 +111,140 @@ export class State {
 
     isGameOver(): boolean {
         return this.winner() !== null;
+    }
+
+    get automaticPlayoutPossible(): boolean {
+        return this.wallsAvailable[0] === 0 && this.wallsAvailable[1] === 0;
+    }
+
+    automaticPlayout(): Player|null {
+        // If the distance difference is big enough it does not matter
+        const ddiff = this.shortestPaths[this.currentPlayer] - this.shortestPaths[this.opponent];
+        if (ddiff >= 2) {
+            console.log("Decisive diff for opponent player");
+            return this.opponent;
+        } else if (ddiff <= -2) {
+            console.log("Decisive diff for curr");
+            return this.currentPlayer;
+        } else {
+            console.log("Playout depends on jumps");
+            // Find jump dist
+            // Check that all squares on the shortest paths for the current player are jumpable
+            let depth = this.shortestPaths[this.currentPlayer] - 1;
+            let layer = new Set<Pos>();
+            layer.add(this.pawnPositions[this.currentPlayer]);
+            let jumpFlag = false;
+            // let jumpAll = true;
+            let currPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
+            while (depth > 0) {
+                let nextLayer: Set<Pos> = new Set();
+                console.log(layer, depth);
+                for (const [row, col] of layer.values()) {
+                    const ns =  [
+                        [row + 2, col],
+                        [row, col + 2],
+                        [row, col - 2],
+                        [row - 2, col],
+                    ];
+                    const ws = [
+                        this.board[row + 1][col],
+                        this.board[row][col + 1],
+                        this.board[row][col - 1],
+                        this.board[row - 1][col],
+                    ];
+                    // if (jumpFlag && this.board[row][col] !== this.board[row-1][col-1]) {
+                    //    jumpAll = false;
+                    // }
+                    if (this.board[row][col] !== -1 && this.board[row][col] === this.board[row-1][col-1]) {
+                        jumpFlag = true;
+                        // JUMPABLE
+                    } else {
+                        ns.forEach(([i, j], ind) => {
+                            if (ws[ind] === 1 || i < 0 || i >= this.height || j < 0 || j >= this.width) return;
+                            if (currPaths[i][j] !== -1) return;
+                            if (this.currentPlayer === Player.white && this.board[i][j] === depth) {
+                                nextLayer.add([i, j]);
+                                currPaths[i][j] = depth;
+                            } else if (this.currentPlayer === Player.black && this.board[i-1][j-1] === depth) {
+                                nextLayer.add([i, j]);
+                                currPaths[i][j] = depth;
+                            }
+                        })
+                    }
+                }
+                if (jumpFlag) break;
+                layer = nextLayer;
+                depth--;
+            }
+            /*
+             * Wrong:
+             * also compute the shortest paths for the opponent
+             * Annoying: arrays in sets do not work as expected :(
+             */
+            const jumpDist = depth;
+            console.log(jumpDist, layer);
+            depth = this.shortestPaths[this.opponent] - 1;
+            layer = new Set<Pos>();
+            layer.add(this.pawnPositions[this.opponent]);
+            const otherPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
+            while (depth > jumpDist) {
+                let nextLayer: Set<Pos> = new Set();
+                console.log(layer, depth);
+                for (const [row, col] of layer.values()) {
+                    const ns =  [
+                        [row + 2, col],
+                        [row, col + 2],
+                        [row, col - 2],
+                        [row - 2, col],
+                    ];
+                    const ws = [
+                        this.board[row + 1][col],
+                        this.board[row][col + 1],
+                        this.board[row][col - 1],
+                        this.board[row - 1][col],
+                    ];
+                    ns.forEach(([i, j], ind) => {
+                        if (ws[ind] === 1 || i < 0 || i >= this.height || j < 0 || j >= this.width) return;
+                        if (otherPaths[i][j] !== -1) return;
+                        if (this.opponent === Player.white && this.board[i][j] === depth) {
+                            nextLayer.add([i, j]);
+                            otherPaths[i][j] = depth;
+                        } else if (this.opponent === Player.black && this.board[i - 1][j - 1] === depth) {
+                            nextLayer.add([i, j]);
+                            otherPaths[i][j] = depth;
+                        }
+                    })
+                }
+                layer = nextLayer;
+                depth--;
+            }
+            let flag = !!layer.size;
+            for (const [i, j] of layer) {
+                if (currPaths[i][j] === -1 || this.board[i][j] !== this.board[i-1][j-1]) {
+                    flag = false;
+                }
+            }
+            console.log("ddif", ddiff, layer, flag);
+            if (jumpFlag && flag) {
+                console.log("(opponent) Can jump for all shortest paths, winner: ", this.opponent);
+            } else {
+                console.log("No decisive jumps, depends on ddiff");
+                if (ddiff > 0) {
+                    console.log("opponent with 1 advantage");
+                    return this.opponent;
+                }
+                else {
+                    console.log("current because he goes first");
+                    return this.currentPlayer;
+                }
+            }
+
+           return null;
+        }
+        // 1. ddiff >= 2 -> currentPlayer wins
+        // 2. ddiff == 1,0 and opponent can't jump -> currentPlayer wins
+        // 3. ddiff == -1 and currenPlayer can jump -> currentPlayer wins
+        // else opponent wins
     }
 
     placeWall(move: WallMove, board: Board): void {
@@ -184,9 +323,9 @@ export class State {
         return ns.filter((_, i) => ws[i] != 1);
     }
 
-    generatePawnMoves(pawnPos: Pos): Array<Move> {
+    generatePawnMoves(pawnPos: Pos): Array<PawnMove> {
         // All adjacent squares
-        const res: Move[] = [];
+        const res: PawnMove[] = [];
         const enemyPos = this.pawnPositions[this.opponent];
         this.generateManhattanMoves(pawnPos, this.board).forEach(c => {
             if (c[0] === enemyPos[0] && c[1] === enemyPos[1]) {
@@ -445,7 +584,7 @@ export class State {
     }
 
     static fromNotation(notation: string, settings: GameSettings): State {
-        const state = new State(settings);
+        const state = new State(settings, true);
         const regex = /(.*)\/(.*)\/(.*) (.*)\/(\d+) (\d+)\/(\d)/;
         const matches = notation.match(regex);
         try {

@@ -15,7 +15,7 @@ export class Game {
     constructor(whiteAgent: MachineAgent, blackAgent: MachineAgent, settings?: GameSettings) {
         this.whiteAgent = whiteAgent;
         this.blackAgent = blackAgent;
-        this.state = new State(settings || {});
+        this.state = new State(settings || {}, true);
         this.history = [];
 
     }

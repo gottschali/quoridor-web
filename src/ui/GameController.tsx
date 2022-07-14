@@ -2,6 +2,7 @@ import { Box, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
+import { ShortestPathAgent, shortestPathMove } from "../agents/ShortestPathAgent";
 import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
 import {  GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";
@@ -10,6 +11,7 @@ import { GameInformation } from "./GameInformation";
 import { GameOverDialog } from "./GameOverDialog";
 import { GameSetup } from "./GameSetup";
 import { MoveHistory } from "./MoveHistory";
+import { PlayOutDialog } from "./PlayOutDialog";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { Rules } from "./Rules";
 import { useGame } from "./useGame";
@@ -21,11 +23,13 @@ export function GameController() {
     const [whiteAgent, setWhiteAgent] = useState<Agent>(HumanAgent);
     const [currentAgent, setCurrentAgent] = useState<Agent>(whiteAgent);
     const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
-    const [localTeam, setLocalTeam] = useState<localTeam>('gray');
     const [showSettings, setShowSettings] = useState<boolean>(true);
     const [settings, setSettings] = useState<MandatoryGameSettings>(GameSettingsDefaults);
     const game = useGame(settings);
     const [gameOverDialogOpen, setGameOverDialogOpen] = useState<boolean>(true);
+    const [autoPlayDialogOpen, setAutoPlayDialogOpen] = useState<boolean>(true);
+    const [autoMove, setAutoMove] = useState(false);
+
     const [showRules, setShowRules] = useState(false);
 
     const submitMove = (move: Notation) => {
@@ -38,21 +42,25 @@ export function GameController() {
 
     const think = async (agent?: Agent) => {
         agent = agent !== undefined ? agent : currentAgent;
-        console.log("think", agent, game.state.isGameOver());
         if (agent.getMove && !game.state.isGameOver()) {
-            console.log("think2")
             await new Promise(r => setTimeout(r, 200));
             console.log(game.state, await agent.getMove(game.state));
             const move = await agent.getMove(game.state)
-            console.log("yeetus", move);
             submitMove(move);
-        } else {
-            console.log("thinkOUT", agent, game.state.isGameOver());
         }
     }
 
     useEffect(() => {
-        think();
+        game.state.automaticPlayout();
+        if (!game.state.isGameOver()) {
+            if (autoMove) {
+                makeAutoMove();
+            } else {
+                think();
+            }
+        } else {
+            setAutoMove(false);
+        }
     }, [game.turn]);
 
     const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
@@ -74,12 +82,27 @@ export function GameController() {
             currentAgent.terminate();
         }
         setGameOverDialogOpen(true);
+        setAutoPlayDialogOpen(true);
         setShowSettings(false);
-        game.reset(settings);
+        setAutoMove(false);
         setCurrentAgent(whiteAgent);
-        setTimeout(()=> {
+        game.reset(settings);
+        setTimeout(() => {
             think(whiteAgent);
         }, 200);
+    }
+
+    const makeAutoMove = async () => {
+        await new Promise(r => setTimeout(r, 200));
+        const move = await shortestPathMove(game.state);
+        submitMove(move);
+    }
+
+
+    const autoPlayout = async () => {
+        setAutoPlayDialogOpen(false);
+        setAutoMove(true);
+        makeAutoMove();
     }
 
     return (<div>
@@ -101,9 +124,15 @@ export function GameController() {
                        close={()=>setShowSettings(false)}
                        submitSettings={createGame} />
 
-            <GameOverDialog reset={() => game.reset(GameSettingsDefaults)}
+            <GameOverDialog reset={reset}
                             open={gameOverDialogOpen && game.state.isGameOver()}
-                        close={() => setGameOverDialogOpen(false)} />
+                            winner={game.state.winner()}
+                    close={() => setGameOverDialogOpen(false)} />
+            <PlayOutDialog
+                open={autoPlayDialogOpen && game.state.automaticPlayoutPossible}
+                playout={autoPlayout}
+                close={() => setAutoPlayDialogOpen(false)}
+            />
             <Rules open={showRules} close={()=>setShowRules(false)} />
     </div>
     )

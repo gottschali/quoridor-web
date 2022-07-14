@@ -7,7 +7,7 @@ export function evaluateState(state: State, evalPlayer: Player) {
   const d1 = state.shortestPaths[evalPlayer];
   const otherPlayer = evalPlayer === Player.white ? Player.black : Player.white;
   const d2 = state.shortestPaths[otherPlayer];
-  if (state.wallsAvailable[0] + state.wallsAvailable[1] === 0) {
+  if (state.automaticPlayoutPossible) {
     // The one with shorter distance wins
     // But check if a jump could influence it!
     // TODO: do it correctly with taking account for jumps
@@ -16,6 +16,6 @@ export function evaluateState(state: State, evalPlayer: Player) {
     // Wait: we can just play it out
   }
   // factor in the walls available
-  return d2 - d1 + 0 * state.wallsAvailable[evalPlayer] - 0 * state.wallsAvailable[otherPlayer] + Math.random();
+  return d2 - d1 + 0.1 * state.wallsAvailable[evalPlayer] - 0.1 * state.wallsAvailable[otherPlayer] + Math.random() * 0.5;
   // return (30-d1) + d2 + 10 +  Math.random() * 5;
 }
