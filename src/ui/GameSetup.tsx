@@ -3,6 +3,7 @@ import { Box, Button, ButtonGroup, Center, Container, Flex, FormControl, FormLab
 import { ChangeEvent, Dispatch, ReactElement, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
+import { MCTSAgent } from "../agents/MCTSAgent";
 import { MinMaxAgent } from "../agents/MinMaxAgent";
 import { RandomAgent } from "../agents/RandomAgent";
 import { ShortestPathAgent } from "../agents/ShortestPathAgent";
@@ -18,6 +19,7 @@ interface agentList {
     human: Agent,
     MinMax2: Agent,
     random: Agent,
+    MCTS: Agent,
     MinMax3: Agent,
     MinMax4: Agent,
     MinMaxINF: Agent,
@@ -29,13 +31,14 @@ export const agentList: agentList = {
     human: HumanAgent,
     MinMax2: MinMaxAgent(2),
     random: RandomAgent,
+    MCTS: MCTSAgent(),
     naive: MinMaxAgent(1),
     MinMax3: MinMaxAgent(3),
     MinMax4: MinMaxAgent(4),
     MinMaxINF: MinMaxAgent(Number.POSITIVE_INFINITY),
     shortest: ShortestPathAgent,
 }
-export type Agents = 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' | 'human' | 'random' | 'shortest';
+export type Agents = 'MCTS' | 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' | 'human' | 'random' | 'shortest';
 
 interface AgentSelectProps {
     setAgent: Dispatch<Agent>;

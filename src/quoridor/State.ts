@@ -109,6 +109,14 @@ export class State {
         return null;
     }
 
+    result(player: Player) {
+        if (this.isGameOver()) {
+            return this.winner() === player ? 1 : -1;
+        } else {
+            return this.automaticPlayout() === player ? 1 : -1;
+        }
+    }
+
     isGameOver(): boolean {
         return this.winner() !== null;
     }
@@ -121,13 +129,13 @@ export class State {
         // If the distance difference is big enough it does not matter
         const ddiff = this.shortestPaths[this.currentPlayer] - this.shortestPaths[this.opponent];
         if (ddiff >= 2) {
-            console.log("Decisive diff for opponent player");
+            // console.log("Decisive diff for opponent player");
             return this.opponent;
         } else if (ddiff <= -2) {
-            console.log("Decisive diff for curr");
+            // console.log("Decisive diff for curr");
             return this.currentPlayer;
         } else {
-            console.log("Playout depends on jumps");
+            // console.log("Playout depends on jumps");
             // Find jump dist
             // Check that all squares on the shortest paths for the current player are jumpable
             let depth = this.shortestPaths[this.currentPlayer] - 1;
@@ -138,7 +146,7 @@ export class State {
             let currPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
             while (depth > 0) {
                 let nextLayer: Set<Pos> = new Set();
-                console.log(layer, depth);
+                // console.log(layer, depth);
                 for (const [row, col] of layer.values()) {
                     const ns =  [
                         [row + 2, col],
@@ -182,14 +190,14 @@ export class State {
              * Annoying: arrays in sets do not work as expected :(
              */
             const jumpDist = depth;
-            console.log(jumpDist, layer);
+            // console.log(jumpDist, layer);
             depth = this.shortestPaths[this.opponent] - 1;
             layer = new Set<Pos>();
             layer.add(this.pawnPositions[this.opponent]);
             const otherPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
             while (depth > jumpDist) {
                 let nextLayer: Set<Pos> = new Set();
-                console.log(layer, depth);
+                // console.log(layer, depth);
                 for (const [row, col] of layer.values()) {
                     const ns =  [
                         [row + 2, col],
@@ -224,17 +232,17 @@ export class State {
                     flag = false;
                 }
             }
-            console.log("ddif", ddiff, layer, flag);
+            // console.log("ddif", ddiff, layer, flag);
             if (jumpFlag && flag) {
-                console.log("(opponent) Can jump for all shortest paths, winner: ", this.opponent);
+                // console.log("(opponent) Can jump for all shortest paths, winner: ", this.opponent);
             } else {
-                console.log("No decisive jumps, depends on ddiff");
+                // console.log("No decisive jumps, depends on ddiff");
                 if (ddiff > 0) {
-                    console.log("opponent with 1 advantage");
+                    // console.log("opponent with 1 advantage");
                     return this.opponent;
                 }
                 else {
-                    console.log("current because he goes first");
+                    // console.log("current because he goes first");
                     return this.currentPlayer;
                 }
             }
