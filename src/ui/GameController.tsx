@@ -129,7 +129,7 @@ export function GameController() {
                             winner={game.state.winner()}
                     close={() => setGameOverDialogOpen(false)} />
             <PlayOutDialog
-                open={autoPlayDialogOpen && game.state.automaticPlayoutPossible}
+                open={!currentAgent.isMachine && autoPlayDialogOpen && game.state.automaticPlayoutPossible}
                 playout={autoPlayout}
                 close={() => setAutoPlayDialogOpen(false)}
             />
