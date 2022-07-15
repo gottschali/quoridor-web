@@ -9,13 +9,14 @@ interface Props {
 }
 
 export function GameInformation({currentAgent, game}: Props) {
-    const icon = game.state.winner() === Player.white ? "○" : "●";
+    const winnerIcon = game.state.winner() === Player.white ? "○" : "●";
+    const currentIcon = game.state.winner() === Player.white ? "○" : "●";
 
     return (
             <Center>
                 <HStack >
                     {game.state.isGameOver()
-                        ? <Badge fontSize='ml' colorScheme={currentAgent.isMachine ? 'green' : 'red'}> Winner: {icon}</Badge>
+                        ? <Badge fontSize='ml' colorScheme={currentAgent.isMachine ? 'green' : 'red'}> Winner: {winnerIcon}</Badge>
                         : <Badge fontSize='ml'> Winner: undecided </Badge>
                     }
                     <Badge fontSize='ml' variant={game.state.currentPlayer === Player.white ? 'outline' : 'solid'} colorScheme='blackAlpha'>
@@ -30,7 +31,7 @@ export function GameInformation({currentAgent, game}: Props) {
                         walls ●: {game.state.wallsAvailable[Player.black]}
                     </Badge>
                     <Badge fontSize='ml'>Player: {currentAgent.name}
-                        {icon}
+                        {currentIcon}
                     </Badge>
                     <Badge fontSize='ml'>
                         {currentAgent.isMachine && !game.state.isGameOver() && <CircularProgress isIndeterminate size='1em'/>}
