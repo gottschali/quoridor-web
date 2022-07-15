@@ -1,6 +1,7 @@
 import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
 import { State } from "../quoridor/State";
+import { selectRandomly } from "./utils";
 
 export class MCTSNode {
     state: State;
@@ -91,7 +92,7 @@ export class MCTSNode {
     }
 
     rolloutPolicy(moves: Notation[]) {
-        return moves[Math.floor(Math.random() * moves.length)];
+        return selectRandomly(moves);
     }
 
     rollout(): number {

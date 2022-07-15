@@ -4,3 +4,7 @@ export function shuffleArray(arr: Array<any>) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
+
+export function selectRandomly(arr: Array<any>) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
