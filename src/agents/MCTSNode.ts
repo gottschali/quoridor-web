@@ -48,7 +48,7 @@ export class MCTSNode {
         return current;
     }
 
-    bestAction(simulations=100): Notation {
+    bestAction(simulations=1000): Notation {
         for (let i=0;i<simulations;i++) {
             const leaf = this.select();
             const reward = leaf.rollout();
@@ -83,8 +83,7 @@ export class MCTSNode {
     get isTerminal() {
         if (this.state.isGameOver()) {
             return true;
-        }
-        if (this.state.automaticPlayoutPossible) {
+        } else if (this.state.automaticPlayoutPossible) {
             return true;
         } else {
             return false;

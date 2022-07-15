@@ -21,7 +21,7 @@ export function AIAgent(): MachineAgent {
         } else if (state.turn < state.height / 4) {
             return shortestPathMove(state);
         } else {
-            const minmaxMove = iterativeDeepening(state, 200, workers);
+            const minmaxMove = iterativeDeepening(state, 100, workers);
             // const root = new MCTSNode(state, null, "ROOT", state.currentPlayer);
             // const mctsMove = root.bestAction(1000);
             return minmaxMove;

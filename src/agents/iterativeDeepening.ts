@@ -8,7 +8,7 @@ export async function iterativeDeepening(state: State, availableMs: number, work
    */
   let timeUsed = 0;
   let depth = 0;
-  let tempMove = "";
+  let tempMove = "INITIALIZED";
   while (timeUsed < availableMs) {
     depth++
     console.log(`Iterative deepening reached ${depth}`);
