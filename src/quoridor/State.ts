@@ -48,6 +48,7 @@ export class State {
     height: number;
     illegal = false;
     shortestPaths : number[];
+    turn = 0;
     private precomputedMoves: Set<Notation> | undefined;
     private _children: Map<Notation, State> | undefined;
 
@@ -293,6 +294,7 @@ export class State {
         newState.pawnPositions = [...this.pawnPositions];
         newState.wallsAvailable = [...this.wallsAvailable];
         newState.currentPlayer = this.currentPlayer === Player.white ? Player.black : Player.white;
+        newState.turn = this.turn + 1;
 
         // I would like have a type guard here like move typeof PawnMove
         // But the type information is not available at runtime...
@@ -620,6 +622,7 @@ export class State {
                 state.wallsAvailable[0] = Number.parseInt(matches[5]);
                 state.wallsAvailable[1] = Number.parseInt(matches[6]);
                 state.currentPlayer = matches[7] === "1" ? Player.black : Player.white;
+                state.turn = -1;
 
                 state.shortestPaths[Player.white] = state.whiteBFS();
                 state.shortestPaths[Player.black] = state.blackBFS();
