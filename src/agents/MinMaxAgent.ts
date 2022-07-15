@@ -3,7 +3,7 @@ import { State } from "../quoridor/State";
  // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from "worker-loader!./MinMaxWorker";
 import { MachineAgent } from "./Agent";
-import { shuffleArray } from "./minMax";
+import { shuffleArray } from "./utils";
 
 export let nodes = 0;
 

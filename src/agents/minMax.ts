@@ -1,12 +1,8 @@
 import { Player } from "../quoridor/Player";
 import { State } from "../quoridor/State";
 import { evaluateState } from "./evaluateState";
+import { shuffleArray } from "./utils";
 
-export function shuffleArray(arr: Array<any>) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
 }
 
 export function minMax({ state, alpha, beta, maxPlayer, depth, maximizing}: { state: State; alpha: number; beta: number; maxPlayer: Player; depth: number; maximizing: boolean; }): number {
