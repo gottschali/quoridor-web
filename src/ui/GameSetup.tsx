@@ -2,6 +2,7 @@ import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
 import { Box, Button, ButtonGroup, Center, Container, Flex, FormControl, FormLabel, Heading, HStack, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Spacer, Text, useDisclosure } from "@chakra-ui/react";
 import { ChangeEvent, Dispatch, ReactElement, useState } from "react";
 import { Agent } from "../agents/Agent";
+import { AIAgent } from "../agents/AIAgent";
 import { HumanAgent } from "../agents/HumanAgent";
 import { MCTSAgent } from "../agents/MCTSAgent";
 import { MinMaxAgent } from "../agents/MinMaxAgent";
@@ -10,21 +11,9 @@ import { ShortestPathAgent } from "../agents/ShortestPathAgent";
 import { Player } from "../quoridor/Player";
 import { MandatoryGameSettings } from "../quoridor/State";
 
-/**
- * Need to figure out how to do this nicely...
-   this can't be the way
- */
-
+// https://stackoverflow.com/questions/57350092/string-cant-be-used-to-index-type
 interface agentList {
-    human: Agent,
-    MinMax2: Agent,
-    random: Agent,
-    MCTS: Agent,
-    MinMax3: Agent,
-    MinMax4: Agent,
-    MinMaxINF: Agent,
-    naive: Agent,
-    shortest: Agent,
+    [key: string]: Agent;
 }
 
 export const agentList: agentList = {
@@ -37,8 +26,8 @@ export const agentList: agentList = {
     MinMax4: MinMaxAgent(4),
     MinMaxINF: MinMaxAgent(Number.POSITIVE_INFINITY),
     shortest: ShortestPathAgent,
+    AI: AIAgent(),
 }
-export type Agents = 'MCTS' | 'naive' | 'MinMax2' | 'MinMax3' | 'MinMax4' | 'MinMaxINF' | 'human' | 'random' | 'shortest';
 
 interface AgentSelectProps {
     setAgent: Dispatch<Agent>;
@@ -46,7 +35,7 @@ interface AgentSelectProps {
 }
 function AgentSelect({setAgent, player}: AgentSelectProps) {
     const onChange = (e: ChangeEvent<HTMLSelectElement>)=>{
-        setAgent(agentList[e.target.value as Agents])
+        setAgent(agentList[e.target.value])
     }
 
     return  <Select w='xs'
