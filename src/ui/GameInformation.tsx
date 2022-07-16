@@ -10,7 +10,7 @@ interface Props {
 
 export function GameInformation({currentAgent, game}: Props) {
     const winnerIcon = game.state.winner() === Player.white ? "○" : "●";
-    const currentIcon = game.state.winner() === Player.white ? "○" : "●";
+    const currentIcon = game.state.currentPlayer === Player.white ? "○" : "●";
 
     return (
             <Center>

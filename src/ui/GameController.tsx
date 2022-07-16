@@ -2,7 +2,7 @@ import { Box, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { HumanAgent } from "../agents/HumanAgent";
-import { ShortestPathAgent, shortestPathMove } from "../agents/ShortestPathAgent";
+import { shortestPathMove } from "../agents/ShortestPathAgent";
 import { Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
 import {  GameSettingsDefaults, MandatoryGameSettings } from "../quoridor/State";

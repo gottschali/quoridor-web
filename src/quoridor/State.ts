@@ -112,9 +112,9 @@ export class State {
 
     result(player: Player) {
         if (this.isGameOver()) {
-            return this.winner() === player ? 1 : -1;
+            return this.winner() === player ? 1 :  0;
         } else {
-            return this.automaticPlayout() === player ? 1 : -1;
+            return this.automaticPlayout() === player ? 1 : 0;
         }
     }
 
@@ -267,6 +267,22 @@ export class State {
         }
     }
 
+    clone(): State {
+        const newState = new State(this.settings);
+
+        for (let i=0;i<this.height;i++) {
+            for (let j=0;j<this.width;j++) {
+                newState.board[i][j] = this.board[i][j];
+            }
+        }
+        newState.pawnPositions = [...this.pawnPositions];
+        newState.wallsAvailable = [...this.wallsAvailable];
+        newState.shortestPaths = [...this.shortestPaths];
+        newState._children = new Map(this._children);
+        newState.precomputedMoves = new Set(this.precomputedMoves);
+        return newState;
+    }
+
     makeMove(move: Move|Notation): State {
         // We expect moves to use the internal representations
         // try to make it immutable and return
@@ -314,6 +330,44 @@ export class State {
         if (d === -1) newState.illegal = true;
         newState.shortestPaths[Player.black] = d;
         return newState;
+    }
+
+    makeMoveInplace(move: Move|Notation): State {
+        /*
+         * Modifies the state inplace.
+         */
+        if (typeof move === 'string') {
+            move = notationToMove(move);
+        }
+        this.currentPlayer = this.currentPlayer === Player.white ? Player.black : Player.white;
+        this.turn = this.turn + 1;
+        if ('target' in move) {
+            this.pawnPositions[this.currentPlayer] = move.target;
+            // if we only move a pawn the dist field does not change
+            // But wait there may be a jump possible now!
+        } else {
+            this.placeWall(move, this.board);
+            this.wallsAvailable[this.currentPlayer]--;
+            // Invalidate DIST fields
+            // TODO: check if we can skip recomputing
+            for (let i=0;i<this.height;i++) {
+                for (let j=0;j<this.width;j++) {
+                    if (i % 2 == 0 && j % 2 == 0) { // crosses
+                        this.board[i][j] = -1;
+                    }
+                    if (i % 2 == 1 && j % 2 == 1) { // crosses
+                        this.board[i][j] = -1;
+                    }
+                }
+            }
+            const d1 = this.whiteBFS();
+            if (d1 === -1) this.illegal = true;
+            this.shortestPaths[Player.white] = d1;
+            const d = this.blackBFS();
+            if (d === -1) this.illegal = true;
+            this.shortestPaths[Player.black] = d;
+        }
+        return this;
     }
 
     generateManhattanMoves(pos: Pos, board: Board): Array<Pos> {

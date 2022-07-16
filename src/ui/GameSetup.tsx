@@ -1,6 +1,6 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import { Box, Button, ButtonGroup, Center, Container, Flex, FormControl, FormLabel, Heading, HStack, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Spacer, Text, useDisclosure } from "@chakra-ui/react";
-import { ChangeEvent, Dispatch, ReactElement, useState } from "react";
+import { Button, Center, Container, Flex, FormControl, FormLabel, HStack, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Spacer, Text, useDisclosure } from "@chakra-ui/react";
+import { ChangeEvent, Dispatch, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { AIAgent } from "../agents/AIAgent";
 import { HumanAgent } from "../agents/HumanAgent";
