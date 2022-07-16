@@ -1,7 +1,6 @@
 import { Notation } from "../quoridor/Notation";
 import { State } from "../quoridor/State";
 import { minMaxWrapper } from "./minMax";
-import { shuffleArray } from "./utils";
 
 export async function iterativeDeepening(state: State, availableMs: number, workers: Worker[]): Promise<Notation> {
   /*
