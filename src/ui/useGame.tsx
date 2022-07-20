@@ -28,7 +28,7 @@ export type useGame = {
 }
 
 export function useGame(settings: GameSettings): useGame {
-    const [state, setState] = useState(new State(settings));
+    const [state, setState] = useState(new State(settings, true));
     const [turn, setTurn] = useState(0);
     const [history, setHistory] = useState<Notation[]>([]);
     const [stateHistory, setStateHistory] = useState<State[]>([]);
@@ -37,7 +37,6 @@ export function useGame(settings: GameSettings): useGame {
                                             .map( () => new Array(state.width).fill(MatrixItem.Uninitialized)));
 
     useEffect(() => {
-        console.log(state.settings);
         const newMatrix = new Array(state.height).fill(0).map( () => new Array(state.width).fill(0))
 
         for (let i=0;i<state.height; i++) {
@@ -72,10 +71,11 @@ export function useGame(settings: GameSettings): useGame {
     }, [turn, state])
 
     const reset = (settings: MandatoryGameSettings) => {
-        setState(new State(settings))
+        setState(new State(settings, true))
         setHistory([]);
+        setStateHistory([]);
         setTurn(0);
-        setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(0)));
+        setMatrix(new Array(settings.boardHeight * 2 + 1).fill(0).map( () => new Array(settings.boardWidth * 2 + 1).fill(MatrixItem.Uninitialized)));
     }
 
     const update = (state: State) => {

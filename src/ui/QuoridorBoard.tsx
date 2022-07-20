@@ -91,11 +91,14 @@ interface SquareProps {
     proposeProx: any,
 }
 function Square({row, column, highlight, proposeProx}: SquareProps) {
-    const handleClick = (e: React.MouseEvent) => proposeProx([row, column]);
+    const handleClick = (e: React.MouseEvent) => {
+        console.log("Clicked on ", posToString([row, column]));
+        if (highlight) proposeProx([row, column]);
+    }
     if (highlight) {
         return <td className="square highlight" onClick={handleClick}/>
     } else {
-        return <td className="square" />
+        return <td className="square" onClick={handleClick} />
     }
 }
 
@@ -137,7 +140,6 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
     const proposeProxy = (c: Pos) => {
         submitMove(posToString(c));
     }
-
     return (
             <TableContainer bg="orange.200" className='board'>
                 <Table variant='unstyled' display='inline' className='gameTable' cellSpacing={0}>

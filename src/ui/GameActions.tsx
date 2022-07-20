@@ -15,46 +15,52 @@ export function GameActions({setShowSettings, reset, undo, showRules}: Props) {
         <>
 
             <IconButton
+                size='lg'
                 onClick={()=>setShowSettings(true)}
                 aria-label='Open game settings'
                 icon={<SettingsIcon />}
             />
 
             <IconButton
-            onClick={undo}
-            aria-label='Undo move'
-            icon={<ArrowBackIcon />}
+                size='lg'
+                onClick={undo}
+                aria-label='Undo move'
+                icon={<ArrowBackIcon />}
             />
             <IconButton
-            onClick={()=>setOpen(false)}
-            aria-label='Toggle actions'
-            icon={<TriangleUpIcon />}
-            />
-
-            <IconButton
-            onClick={showRules}
-            aria-label='Show the rules'
-            icon={<InfoOutlineIcon />}
+                size='lg'
+                onClick={()=>setOpen(false)}
+                aria-label='Toggle actions'
+                icon={<TriangleUpIcon />}
             />
 
             <IconButton
-            onClick={reset}
-            aria-label='Reset the game'
-            icon={<RepeatIcon />}
+                size='lg'
+                onClick={showRules}
+                aria-label='Show the rules'
+                icon={<InfoOutlineIcon />}
+            />
+
+            <IconButton
+                size='lg'
+                onClick={reset}
+                aria-label='Reset the game'
+                icon={<RepeatIcon />}
             />
         </>
         ): (
             <IconButton
+                size='lg'
                 onClick={()=>setOpen(true)}
-            aria-label='Reset the game'
-            icon={<TriangleDownIcon />}
+                aria-label='Reset the game'
+                icon={<TriangleDownIcon />}
             />
         );
 
 
     return (
         <Center>
-            <HStack >
+            <HStack spacing={4}>
                 {content}
             </HStack>
         </Center>

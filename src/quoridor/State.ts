@@ -7,7 +7,7 @@
  * - But I would restrict it to a 2-player game
  */
 
-import { Orientation, type Move, type WallMove } from "./Move";
+import { Orientation, PawnMove, type Move, type WallMove } from "./Move";
 import { moveToNotation, Notation, notationToMove, notationToPos, posToString } from "./Notation";
 import { Player } from "./Player";
 
@@ -48,10 +48,11 @@ export class State {
     height: number;
     illegal = false;
     shortestPaths : number[];
+    turn = 0;
     private precomputedMoves: Set<Notation> | undefined;
     private _children: Map<Notation, State> | undefined;
 
-    constructor(settings: GameSettings = GameSettingsDefaults) {
+    constructor(settings: GameSettings = GameSettingsDefaults, root?: boolean) {
         this.settings = { ...GameSettingsDefaults, ...settings };
         this.wallsAvailable = [this.settings.walls, this.settings.walls];
         // The size of the internal matrix representation
@@ -67,14 +68,19 @@ export class State {
             .fill(0)
             .map(() => new Int8Array(this.width).fill(-1));
 
-        // Hack: surround the board with walls that we do not have to do bounds checking
-        for (let i=0;i<this.height;i++) {
-            this.board[i][0] = 1;
-            this.board[i][this.width - 1] = 1;
-        }
-        for (let j=0;j<this.width;j++) {
-            this.board[0][j] = 1;
-            this.board[this.height - 1][j] = 1;
+        if (root) {
+            // Hack: surround the board with walls that we do not have to do bounds checking
+            for (let i=0;i<this.height;i++) {
+                this.board[i][0] = 1;
+                this.board[i][this.width - 1] = 1;
+            }
+            for (let j=0;j<this.width;j++) {
+                this.board[0][j] = 1;
+                this.board[this.height - 1][j] = 1;
+            }
+
+            this.whiteBFS();
+            this.blackBFS();
         }
         // White begins
         this.currentPlayer = Player.white;
@@ -104,8 +110,150 @@ export class State {
         return null;
     }
 
+    result(player: Player) {
+        if (this.isGameOver()) {
+            return this.winner() === player ? 1 :  0;
+        } else {
+            return this.automaticPlayout() === player ? 1 : 0;
+        }
+    }
+
     isGameOver(): boolean {
         return this.winner() !== null;
+    }
+
+    get automaticPlayoutPossible(): boolean {
+        return this.wallsAvailable[0] === 0 && this.wallsAvailable[1] === 0;
+    }
+
+    automaticPlayout(): Player|null {
+        // If the distance difference is big enough it does not matter
+        const ddiff = this.shortestPaths[this.currentPlayer] - this.shortestPaths[this.opponent];
+        if (ddiff >= 2) {
+            // console.log("Decisive diff for opponent player");
+            return this.opponent;
+        } else if (ddiff <= -2) {
+            // console.log("Decisive diff for curr");
+            return this.currentPlayer;
+        } else {
+            // console.log("Playout depends on jumps");
+            // Find jump dist
+            // Check that all squares on the shortest paths for the current player are jumpable
+            let depth = this.shortestPaths[this.currentPlayer] - 1;
+            let layer = new Set<Pos>();
+            layer.add(this.pawnPositions[this.currentPlayer]);
+            let jumpFlag = false;
+            // let jumpAll = true;
+            let currPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
+            while (depth > 0) {
+                let nextLayer: Set<Pos> = new Set();
+                // console.log(layer, depth);
+                for (const [row, col] of layer.values()) {
+                    const ns =  [
+                        [row + 2, col],
+                        [row, col + 2],
+                        [row, col - 2],
+                        [row - 2, col],
+                    ];
+                    const ws = [
+                        this.board[row + 1][col],
+                        this.board[row][col + 1],
+                        this.board[row][col - 1],
+                        this.board[row - 1][col],
+                    ];
+                    // if (jumpFlag && this.board[row][col] !== this.board[row-1][col-1]) {
+                    //    jumpAll = false;
+                    // }
+                    if (this.board[row][col] !== -1 && this.board[row][col] === this.board[row-1][col-1]) {
+                        jumpFlag = true;
+                        // JUMPABLE
+                    } else {
+                        ns.forEach(([i, j], ind) => {
+                            if (ws[ind] === 1 || i < 0 || i >= this.height || j < 0 || j >= this.width) return;
+                            if (currPaths[i][j] !== -1) return;
+                            if (this.currentPlayer === Player.white && this.board[i][j] === depth) {
+                                nextLayer.add([i, j]);
+                                currPaths[i][j] = depth;
+                            } else if (this.currentPlayer === Player.black && this.board[i-1][j-1] === depth) {
+                                nextLayer.add([i, j]);
+                                currPaths[i][j] = depth;
+                            }
+                        })
+                    }
+                }
+                if (jumpFlag) break;
+                layer = nextLayer;
+                depth--;
+            }
+            /*
+             * Wrong:
+             * also compute the shortest paths for the opponent
+             * Annoying: arrays in sets do not work as expected :(
+             */
+            const jumpDist = depth;
+            // console.log(jumpDist, layer);
+            depth = this.shortestPaths[this.opponent] - 1;
+            layer = new Set<Pos>();
+            layer.add(this.pawnPositions[this.opponent]);
+            const otherPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
+            while (depth > jumpDist) {
+                let nextLayer: Set<Pos> = new Set();
+                // console.log(layer, depth);
+                for (const [row, col] of layer.values()) {
+                    const ns =  [
+                        [row + 2, col],
+                        [row, col + 2],
+                        [row, col - 2],
+                        [row - 2, col],
+                    ];
+                    const ws = [
+                        this.board[row + 1][col],
+                        this.board[row][col + 1],
+                        this.board[row][col - 1],
+                        this.board[row - 1][col],
+                    ];
+                    ns.forEach(([i, j], ind) => {
+                        if (ws[ind] === 1 || i < 0 || i >= this.height || j < 0 || j >= this.width) return;
+                        if (otherPaths[i][j] !== -1) return;
+                        if (this.opponent === Player.white && this.board[i][j] === depth) {
+                            nextLayer.add([i, j]);
+                            otherPaths[i][j] = depth;
+                        } else if (this.opponent === Player.black && this.board[i - 1][j - 1] === depth) {
+                            nextLayer.add([i, j]);
+                            otherPaths[i][j] = depth;
+                        }
+                    })
+                }
+                layer = nextLayer;
+                depth--;
+            }
+            let flag = !!layer.size;
+            for (const [i, j] of layer) {
+                if (currPaths[i][j] === -1 || this.board[i][j] !== this.board[i-1][j-1]) {
+                    flag = false;
+                }
+            }
+            // console.log("ddif", ddiff, layer, flag);
+            if (jumpFlag && flag) {
+                // console.log("(opponent) Can jump for all shortest paths, winner: ", this.opponent);
+            } else {
+                // console.log("No decisive jumps, depends on ddiff");
+                if (ddiff > 0) {
+                    // console.log("opponent with 1 advantage");
+                    return this.opponent;
+                }
+                else {
+                    // console.log("current because he goes first");
+                    return this.currentPlayer;
+                }
+            }
+
+           return null;
+        }
+        // 1. ddiff >= 2 -> currentPlayer wins
+        // 2. ddiff == 1,0 and opponent can't jump -> currentPlayer wins
+        // 3. ddiff == -1 and currenPlayer can jump -> currentPlayer wins
+        // else opponent wins
     }
 
     placeWall(move: WallMove, board: Board): void {
@@ -117,6 +265,22 @@ export class State {
             board[row][column] = 1;
             board[row + 2][column] = 1;
         }
+    }
+
+    clone(): State {
+        const newState = new State(this.settings);
+
+        for (let i=0;i<this.height;i++) {
+            for (let j=0;j<this.width;j++) {
+                newState.board[i][j] = this.board[i][j];
+            }
+        }
+        newState.pawnPositions = [...this.pawnPositions];
+        newState.wallsAvailable = [...this.wallsAvailable];
+        newState.shortestPaths = [...this.shortestPaths];
+        newState._children = new Map(this._children);
+        newState.precomputedMoves = new Set(this.precomputedMoves);
+        return newState;
     }
 
     makeMove(move: Move|Notation): State {
@@ -146,6 +310,7 @@ export class State {
         newState.pawnPositions = [...this.pawnPositions];
         newState.wallsAvailable = [...this.wallsAvailable];
         newState.currentPlayer = this.currentPlayer === Player.white ? Player.black : Player.white;
+        newState.turn = this.turn + 1;
 
         // I would like have a type guard here like move typeof PawnMove
         // But the type information is not available at runtime...
@@ -158,13 +323,51 @@ export class State {
         }
         // recreate distField if necessary
         // TODO: check if we can skip recomputing
-        const d1 = newState.whiteBFS(newState.pawnPositions[Player.white]);
+        const d1 = newState.whiteBFS();
         if (d1 === -1) newState.illegal = true;
         newState.shortestPaths[Player.white] = d1;
-        const d = newState.blackBFS(newState.pawnPositions[Player.black]);
+        const d = newState.blackBFS();
         if (d === -1) newState.illegal = true;
         newState.shortestPaths[Player.black] = d;
         return newState;
+    }
+
+    makeMoveInplace(move: Move|Notation): State {
+        /*
+         * Modifies the state inplace.
+         */
+        if (typeof move === 'string') {
+            move = notationToMove(move);
+        }
+        this.currentPlayer = this.currentPlayer === Player.white ? Player.black : Player.white;
+        this.turn = this.turn + 1;
+        if ('target' in move) {
+            this.pawnPositions[this.currentPlayer] = move.target;
+            // if we only move a pawn the dist field does not change
+            // But wait there may be a jump possible now!
+        } else {
+            this.placeWall(move, this.board);
+            this.wallsAvailable[this.currentPlayer]--;
+            // Invalidate DIST fields
+            // TODO: check if we can skip recomputing
+            for (let i=0;i<this.height;i++) {
+                for (let j=0;j<this.width;j++) {
+                    if (i % 2 == 0 && j % 2 == 0) { // crosses
+                        this.board[i][j] = -1;
+                    }
+                    if (i % 2 == 1 && j % 2 == 1) { // crosses
+                        this.board[i][j] = -1;
+                    }
+                }
+            }
+            const d1 = this.whiteBFS();
+            if (d1 === -1) this.illegal = true;
+            this.shortestPaths[Player.white] = d1;
+            const d = this.blackBFS();
+            if (d === -1) this.illegal = true;
+            this.shortestPaths[Player.black] = d;
+        }
+        return this;
     }
 
     generateManhattanMoves(pos: Pos, board: Board): Array<Pos> {
@@ -184,9 +387,9 @@ export class State {
         return ns.filter((_, i) => ws[i] != 1);
     }
 
-    generatePawnMoves(pawnPos: Pos): Array<Move> {
+    generatePawnMoves(pawnPos: Pos): Array<PawnMove> {
         // All adjacent squares
-        const res: Move[] = [];
+        const res: PawnMove[] = [];
         const enemyPos = this.pawnPositions[this.opponent];
         this.generateManhattanMoves(pawnPos, this.board).forEach(c => {
             if (c[0] === enemyPos[0] && c[1] === enemyPos[1]) {
@@ -220,14 +423,19 @@ export class State {
         return this.currentPlayer === Player.white ? Player.black : Player.white;
     }
 
-    whiteBFS(start: Pos): number {
-        const q: number[][] = [start];
-        this.board[start[0]][start[1]] = 0;
+    whiteBFS(): number {
+        // The other direction: start on the other side
+        const q: number[][] = [];
+        for (let i=1;i<this.width;i+=2) {
+            q.push([this.height -2, i]);
+            this.board[this.height -2][i] = 0;
+        }
+        const [pr, pc] = this.pawnPositions[Player.white];
         while (q.length > 0) {
             const v = q.shift();
             if (!v) continue;
             const [row, col] = v;
-            if (row >= this.height - 2) {
+            if (row === pr && col === pc) {
                 return this.board[row][col];
             }
             const ns = [
@@ -252,16 +460,20 @@ export class State {
         return -1;
     }
 
-    blackBFS(start: Pos) {
+    blackBFS() {
         // Shift everything by -1, -1 when storing or accessing dists
         // This way we can use the empty spaces between walls to store this in the board matrix
-        const q: number[][] = [start];
-        this.board[start[0] - 1][start[1] - 1] = 0;
+        const q: number[][] = [];
+        for (let i=1;i<this.width;i+=2) {
+            q.push([1, i]);
+            this.board[0][i-1] = 0;
+        }
+        const [pr, pc] = this.pawnPositions[Player.black];
         while (q.length > 0) {
             const v = q.shift();
             if (!v) continue;
             const [row, col] = v;
-            if (row <= 1) {
+            if (row === pr && col === pc) {
                 return this.board[row-1][col-1];
             }
             const ns = [
@@ -436,7 +648,7 @@ export class State {
     }
 
     static fromNotation(notation: string, settings: GameSettings): State {
-        const state = new State(settings);
+        const state = new State(settings, true);
         const regex = /(.*)\/(.*)\/(.*) (.*)\/(\d+) (\d+)\/(\d)/;
         const matches = notation.match(regex);
         try {
@@ -464,9 +676,10 @@ export class State {
                 state.wallsAvailable[0] = Number.parseInt(matches[5]);
                 state.wallsAvailable[1] = Number.parseInt(matches[6]);
                 state.currentPlayer = matches[7] === "1" ? Player.black : Player.white;
+                state.turn = -1;
 
-                state.shortestPaths[Player.white] = state.whiteBFS(state.pawnPositions[Player.white]);
-                state.shortestPaths[Player.black] = state.blackBFS(state.pawnPositions[Player.black]);
+                state.shortestPaths[Player.white] = state.whiteBFS();
+                state.shortestPaths[Player.black] = state.blackBFS();
                 return state;
             } else {
                 console.error("invalid matches", matches);
