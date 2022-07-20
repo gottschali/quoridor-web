@@ -13,7 +13,7 @@ export async function iterativeDeepening(state: State, availableMs: number, work
     depth++
     console.log(`Iterative deepening reached ${depth}`);
     let start = performance.now();
-    tempMove = await minMaxWrapper(state, depth);
+    tempMove = await minMaxWrapper(state, depth, workers);
     let end = performance.now();
     timeUsed += end - start;
   }
