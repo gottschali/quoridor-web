@@ -1,6 +1,7 @@
 import { Box, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Agent } from "../agents/Agent";
+import Company from "../agents/Company";
 import { HumanAgent } from "../agents/HumanAgent";
 import { shortestPathMove } from "../agents/ShortestPathAgent";
 import { Notation } from "../quoridor/Notation";
@@ -41,10 +42,10 @@ export function GameController() {
     }
 
     const think = async (agent?: Agent) => {
+        console.log(`${agent && agent.name} thinking...`)
         agent = agent !== undefined ? agent : currentAgent;
         if (agent.getMove && !game.state.isGameOver()) {
             await new Promise(r => setTimeout(r, 200));
-            console.log(game.state, await agent.getMove(game.state));
             const move = await agent.getMove(game.state)
             submitMove(move);
         }
@@ -64,9 +65,7 @@ export function GameController() {
     }, [game.turn]);
 
     const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
-        if (currentAgent.terminate) {
-            currentAgent.terminate();
-        }
+        Company.terminate();
         setBlackAgent(blackAgent);
         setWhiteAgent(whiteAgent);
         setSettings(settings);
@@ -78,9 +77,7 @@ export function GameController() {
     }
 
     const reset = () => {
-        if (currentAgent.terminate) {
-            currentAgent.terminate();
-        }
+        Company.terminate();
         setGameOverDialogOpen(true);
         setAutoPlayDialogOpen(true);
         setShowSettings(false);

@@ -2,9 +2,6 @@ import { State } from "../quoridor/State";
 import { MachineAgent } from "./Agent";
 import { minMaxWrapper } from "./minMax";
 import { shortestPathMove } from "./ShortestPathAgent";
-import Company from "./Company";
-
-export let nodes = 0;
 
 export function MinMaxAgent(depth=2): MachineAgent {
 
@@ -12,7 +9,7 @@ export function MinMaxAgent(depth=2): MachineAgent {
         if (state.wallsAvailable[state.currentPlayer] === 0) {
             return shortestPathMove(state);
         } else {
-            return minMaxWrapper(state, depth, Company.workers)
+            return minMaxWrapper(state, depth);
         }
     }
 
@@ -20,6 +17,5 @@ export function MinMaxAgent(depth=2): MachineAgent {
         isMachine: true,
         name: 'MinMaxAgent',
         getMove: getMove,
-        terminate: Company.terminate.bind(Company),
     }
 }

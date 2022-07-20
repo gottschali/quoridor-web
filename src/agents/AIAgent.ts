@@ -29,6 +29,5 @@ export function AIAgent(): MachineAgent {
         isMachine: true,
         name: 'AIAgent',
         getMove: getMove,
-        terminate: Company.terminate.bind(Company),
     }
 }

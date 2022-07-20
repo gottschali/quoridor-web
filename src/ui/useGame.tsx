@@ -37,7 +37,6 @@ export function useGame(settings: GameSettings): useGame {
                                             .map( () => new Array(state.width).fill(MatrixItem.Uninitialized)));
 
     useEffect(() => {
-        console.log(state.settings);
         const newMatrix = new Array(state.height).fill(0).map( () => new Array(state.width).fill(0))
 
         for (let i=0;i<state.height; i++) {

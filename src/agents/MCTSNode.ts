@@ -1,9 +1,11 @@
-import { Notation } from "../quoridor/Notation";
+import { Move } from "../quoridor/Move";
+import { isPawnMove, moveToNotation, Notation } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
 import { State } from "../quoridor/State";
+import Company from "./Company";
 import { minMaxWrapper } from "./minMax";
 import { shortestPathMove } from "./ShortestPathAgent";
-import { selectRandomly } from "./utils";
+import { selectRandomly, shuffleArray } from "./utils";
 
 export class MCTSNode {
     state: State;

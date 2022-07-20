@@ -9,7 +9,7 @@ import { workTypes } from "./Worker";
 export function MCTSAgent(): MachineAgent {
 
 
-    async function MCTSWrapper(state: State, simulations=1000): Promise<Notation> {
+    async function MCTSWrapper(state: State, simulations=4_000): Promise<Notation> {
         const worker = Company.workers[0];
         return new Promise(resolve => {
             const stateNotation = state.toNotation();
@@ -33,6 +33,5 @@ export function MCTSAgent(): MachineAgent {
         isMachine: true,
         name: 'MCTSAgent',
         getMove,
-        terminate: Company.terminate.bind(Company),
     }
 }
