@@ -18,14 +18,14 @@ interface agentList {
 
 export const agentList: agentList = {
     human: HumanAgent,
-    MinMax2: MinMaxAgent(2),
-    random: RandomAgent,
-    MCTS: MCTSAgent(),
-    naive: MinMaxAgent(1),
-    MinMax3: MinMaxAgent(3),
-    MinMax4: MinMaxAgent(4),
-    MinMaxINF: MinMaxAgent(Number.POSITIVE_INFINITY),
-    shortest: ShortestPathAgent,
+    // MinMax2: MinMaxAgent(2),
+    // random: RandomAgent,
+    // MCTS: MCTSAgent(),
+    // naive: MinMaxAgent(1),
+    // MinMax3: MinMaxAgent(3),
+    // MinMax4: MinMaxAgent(4),
+    // MinMaxINF: MinMaxAgent(Number.POSITIVE_INFINITY),
+    // shortest: ShortestPathAgent,
     AI: AIAgent(),
 }
 
@@ -39,6 +39,7 @@ function AgentSelect({setAgent, player}: AgentSelectProps) {
     }
 
     return  <Select w='xs'
+                    defaultValue={player === Player.white ? "human" : "AI"}
                     onChange={onChange}
                     m={2}
                     bg={player === Player.white ? "white" : "black"}
@@ -61,11 +62,11 @@ interface Props {
 }
 
 export function GameSetup({open, close, submitSettings}: Props) {
-    const [bw, setBw] = useState("9");
-    const [bh, setBh] = useState("9");
-    const [nw, setNw] = useState("10");
+    const [bw, setBw] = useState("7");
+    const [bh, setBh] = useState("7");
+    const [nw, setNw] = useState("7");
     const [whiteAgent, setWhiteAgent] = useState<Agent>(HumanAgent);
-    const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
+    const [blackAgent, setBlackAgent] = useState<Agent>(AIAgent);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
 
@@ -77,6 +78,10 @@ export function GameSetup({open, close, submitSettings}: Props) {
             boardHeight: Number.parseInt(bh),
             walls: Number.parseInt(nw),
         })
+        // Reset to default values
+        // such that there is no inconsitency between ui and state
+        setWhiteAgent(HumanAgent);
+        setBlackAgent(AIAgent);
     }
 
     return (

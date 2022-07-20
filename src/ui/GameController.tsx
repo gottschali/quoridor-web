@@ -17,6 +17,7 @@ import { PlayOutDialog } from "./PlayOutDialog";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { Rules } from "./Rules";
 import { useGame } from "./useGame";
+import { AIAgent } from "../agents/AIAgent";
 
 export type localTeam = Player | 'gray' | 'observer';
 
@@ -24,7 +25,7 @@ export function GameController() {
     // const {state, restoreHistory, turn, step, proposeMove, matrix, history} = useGame();
     const [whiteAgent, setWhiteAgent] = useState<Agent>(HumanAgent);
     const [currentAgent, setCurrentAgent] = useState<Agent>(whiteAgent);
-    const [blackAgent, setBlackAgent] = useState<Agent>(HumanAgent);
+    const [blackAgent, setBlackAgent] = useState<Agent>(AIAgent);
     const [showSettings, setShowSettings] = useState<boolean>(true);
     const [settings, setSettings] = useState<MandatoryGameSettings>(GameSettingsDefaults);
     const game = useGame(settings);
@@ -37,11 +38,6 @@ export function GameController() {
         setShowRules(false);
         setRulesCookie("rules", "no", {      path: "/"    });
     }
-
-
-    useEffect(() => {
-            setCurrentAgent(game.state.currentPlayer === Player.white ? blackAgent : whiteAgent);
-    }, [whiteAgent, blackAgent]);
 
     const submitMove = (move: Notation) => {
         console.log(`Move was submitted: ${JSON.stringify(move)}`);
@@ -62,7 +58,6 @@ export function GameController() {
     }
 
     useEffect(() => {
-        game.state.automaticPlayout();
         if (!game.state.isGameOver()) {
             if (autoMove) {
                 makeAutoMove();
@@ -74,17 +69,17 @@ export function GameController() {
         }
     }, [game.turn]);
 
-    const createGame = (whiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
+    const createGame = (newWhiteAgent: Agent, blackAgent: Agent, settings: MandatoryGameSettings) => {
         Company.terminate();
+        setCurrentAgent(newWhiteAgent);
         setBlackAgent(blackAgent);
-        setWhiteAgent(whiteAgent);
+        setWhiteAgent(newWhiteAgent);
         setSettings(settings);
         setGameOverDialogOpen(true);
         setShowSettings(false);
         game.reset(settings);
-        setCurrentAgent(whiteAgent);
         setTimeout(() => {
-            think(whiteAgent);
+            think(newWhiteAgent);
         }, 1000);
     }
 
