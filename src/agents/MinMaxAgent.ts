@@ -18,8 +18,7 @@ export function MinMaxAgent(depth=2): MachineAgent {
 
     return {
         isMachine: true,
-        name: 'MinMaxAgent',
+        name: `MinMax(${depth})`,
         getMove: getMove,
-        terminate: Company.terminate.bind(Company),
     }
 }

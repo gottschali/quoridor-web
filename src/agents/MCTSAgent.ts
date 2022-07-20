@@ -6,10 +6,10 @@ import { shortestPathMove } from "./ShortestPathAgent";
 import { workTypes } from "./Worker";
 
 
-export function MCTSAgent(): MachineAgent {
+export function MCTSAgent(simulations=4_000): MachineAgent {
 
 
-    async function MCTSWrapper(state: State, simulations=4_000): Promise<Notation> {
+    async function MCTSWrapper(state: State, simulations: number): Promise<Notation> {
         const worker = Company.workers[0];
         return new Promise(resolve => {
             const stateNotation = state.toNotation();
@@ -25,13 +25,13 @@ export function MCTSAgent(): MachineAgent {
         if (state.wallsAvailable[state.currentPlayer] === 0) {
             return shortestPathMove(state);
         } else {
-            return MCTSWrapper(state);
+            return MCTSWrapper(state, simulations);
         }
     }
 
     return {
         isMachine: true,
-        name: 'MCTSAgent',
+        name: `MCTS(${Math.round(simulations/1000)}k)`,
         getMove,
     }
 }
