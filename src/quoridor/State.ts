@@ -146,7 +146,7 @@ export class State {
             // let jumpAll = true;
             let currPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
             while (depth > 0) {
-                let nextLayer: Set<Pos> = new Set();
+                let nextLayer = new Set<Pos>();
                 // console.log(layer, depth);
                 for (const [row, col] of layer.values()) {
                     const ns =  [
@@ -197,7 +197,7 @@ export class State {
             layer.add(this.pawnPositions[this.opponent]);
             const otherPaths = new Array(this.height).fill(0).map(()=>new Array(this.width).fill(-1));
             while (depth > jumpDist) {
-                let nextLayer: Set<Pos> = new Set();
+                let nextLayer = new Set<Pos>();
                 // console.log(layer, depth);
                 for (const [row, col] of layer.values()) {
                     const ns =  [
