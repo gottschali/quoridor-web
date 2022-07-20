@@ -1,4 +1,4 @@
-import { Text, Container, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Tab, TabList, TabPanel, TabPanels, Tabs, Button, Icon, Link, Divider } from "@chakra-ui/react";
+import { Text, Container, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Tab, TabList, TabPanel, TabPanels, Tabs, Button, Icon, Link, Divider, HStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { useGame } from "./useGame";
@@ -6,9 +6,10 @@ import { useGame } from "./useGame";
 interface Props {
     open: boolean;
     close: ()=>void;
+    hideRules: ()=>void;
 }
 
-export function Rules({open, close}: Props) {
+export function Rules({open, close, hideRules}: Props) {
     const [tabIndex, setTabIndex] = useState<number>(0)
 
     /* const handleSliderChange = (event) => {
@@ -35,7 +36,7 @@ export function Rules({open, close}: Props) {
                         </TabList>
                         <TabPanels>
                             <TabPanel>
-                                <TabOne close={close}/>
+                                <TabOne close={close} hideRules={hideRules}/>
                             </TabPanel>
                             <TabPanel>
                                 <About />
@@ -48,7 +49,7 @@ export function Rules({open, close}: Props) {
     )
 }
 
-function TabOne({close}: {close: ()=>void}) {
+function TabOne({close, hideRules}: {close: ()=>void, hideRules: ()=>void}) {
     const game = useGame({boardWidth:5, boardHeight: 5});
     const [index, setIndex] = useState(0);
 
@@ -99,11 +100,14 @@ function TabOne({close}: {close: ()=>void}) {
            <p>
                Now go on an try it out yourself!
            </p>
-
-           <Button colorScheme='purple' onClick={close}>
-                PLAY
-            </Button>
-
+           <HStack>
+            <Button colorScheme='purple' onClick={close}>
+                    PLAY
+                </Button>
+                <Button colorScheme='blackAlpha' onClick={hideRules}>
+                Don't show this again.
+                </Button>
+           </HStack>
 
        </Container>
     )

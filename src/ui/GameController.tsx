@@ -9,6 +9,7 @@ import { GameActions } from "./GameActions";
 import { GameInformation } from "./GameInformation";
 import { GameOverDialog } from "./GameOverDialog";
 import { Agents, GameSetup } from "./GameSetup";
+import { useCookies } from "react-cookie";
 import { MoveHistory } from "./MoveHistory";
 import { QuoridorBoard } from "./QuoridorBoard";
 import { Rules } from "./Rules";
@@ -39,8 +40,13 @@ export function GameController() {
     const [settings, setSettings] = useState<MandatoryGameSettings>(GameSettingsDefaults);
     const game = useGame(settings);
     const [gameOverDialogOpen, setGameOverDialogOpen] = useState<boolean>(true);
-    const [showRules, setShowRules] = useState(false);
+    const [rulesCookie, setRulesCookie] = useCookies(["rules"]);
+    const [showRules, setShowRules] = useState(rulesCookie.rules !== "no");
 
+    const hideRules = () =>{
+        setShowRules(false);
+        setRulesCookie("rules", "no", {      path: "/"    });
+    }
 
 
     useEffect(() => {
@@ -107,7 +113,7 @@ export function GameController() {
             <GameOverDialog reset={() => game.reset(GameSettingsDefaults)}
                             open={gameOverDialogOpen && game.state.isGameOver()}
                         close={() => setGameOverDialogOpen(false)} />
-            <Rules open={showRules} close={()=>setShowRules(false)} />
+            <Rules open={showRules} close={()=>setShowRules(false)} hideRules={hideRules}/>
     </div>
     )
 }
