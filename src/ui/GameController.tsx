@@ -73,7 +73,9 @@ export function GameController() {
         setShowSettings(false);
         game.reset(settings);
         setCurrentAgent(whiteAgent);
-        think(whiteAgent);
+        setTimeout(() => {
+            think(whiteAgent);
+        }, 1000);
     }
 
     const reset = () => {
@@ -86,7 +88,7 @@ export function GameController() {
         game.reset(settings);
         setTimeout(() => {
             think(whiteAgent);
-        }, 200);
+        }, 1000);
     }
 
     const makeAutoMove = async () => {
