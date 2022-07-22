@@ -118,7 +118,7 @@ export function GameController() {
                                  showRules={()=>setShowRules(true)}
                     />
                 </Stack>
-                <Box w="100%" p={5} className='board-container' bg="orange.200">
+                <Box w="100%" paddingBottom={10} className='board-container' bg="orange.200">
                     <QuoridorBoard controlled={!currentAgent.isMachine}
                                    game={game}
                                    submitMove={submitMove} />
