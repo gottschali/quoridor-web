@@ -1,7 +1,7 @@
-import { Table, TableContainer, Tbody, Thead, Tr } from "@chakra-ui/react";
+import { Table, TableContainer, Tbody, Thead, Tr, useToast } from "@chakra-ui/react";
 import { Dispatch, useEffect, useRef, useState } from "react"
 import { Agent } from "../agents/Agent";
-import { Orientation, WallMove } from "../quoridor/Move";
+import { Move, Orientation, WallMove } from "../quoridor/Move";
 import { moveToNotation, Notation, posToString } from "../quoridor/Notation";
 import { Player } from "../quoridor/Player";
 import { State, Pos } from "../quoridor/State";
@@ -31,6 +31,7 @@ interface WallProps {
     setWall0: Dispatch<Pos>,
     setWall1: Dispatch<Pos>,
     setWall2: Dispatch<Pos>,
+    isLegal: (move: Move) => boolean,
 }
 
 function Wall({placed, row, column, orientation, proposeMove, highlight, setWall0, setWall1, setWall2}: WallProps) {
@@ -136,9 +137,26 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
     const [wall0, setWall0] = useState<Pos>([-1, -1]);
     const [wall1, setWall1] = useState<Pos>([-2, -2]);
     const [wall2, setWall2] = useState<Pos>([-3, -3]);
+    const toast = useToast();
 
-    const proposeProxy = (c: Pos) => {
-        submitMove(posToString(c));
+    const isMoveLegal = (move: Notation) => {
+        if (state.isLegal(move)) return true;
+        else {
+            toast({
+                title: `Invalid move ${move}`,
+                description: `This wall either overlaps with existing walls or cuts off the last way for a pawn`,
+                status: 'error',
+                isClosable: true,
+                duration: 4000,
+              })
+            return false;
+        }
+    }
+
+    const proposeProxy = (notation: Notation) => {
+        if (isMoveLegal(notation)) {
+            submitMove(notation);
+        }
     }
     return (
             <TableContainer bg="orange.200" className='board'>
@@ -160,6 +178,7 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
                                                 key={j}
                                                 placed={false}
                                                 orientation={Orientation.Vertical}
+                                                isLegal={state.isLegal}
                                                 proposeMove={()=>{}}
                                                 setWall0={()=>{}}
                                                 setWall1={()=>{}}
@@ -172,7 +191,8 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
                                                 key={j}
                                                 placed={item === MatrixItem.PlacedWall}
                                                 orientation={i % 2 == 0 ? Orientation.Horizontal : Orientation.Vertical}
-                                                proposeMove={controlled ? submitMove : ()=>{}}
+                                                isLegal={state.isLegal}
+                                                proposeMove={controlled ? proposeProxy : ()=>{}}
                                                 setWall0={state.wallsAvailable[state.currentPlayer] > 0 ? setWall0 : ()=>{}}
                                                 setWall1={state.wallsAvailable[state.currentPlayer] > 0 ? setWall1 : ()=>{}}
                                                 setWall2={state.wallsAvailable[state.currentPlayer] > 0 ? setWall2 : ()=>{}}
@@ -182,7 +202,7 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
                                                     highlight={controlled && item === MatrixItem.PawnTarget}
                                                     row={i}
                                                     column={j}
-                                                    proposeProx={proposeProxy} />
+                                                   proposeProx={(c: Pos) => proposeProxy(posToString(c))} />
                                 }
                             })}
                         </Tr>
