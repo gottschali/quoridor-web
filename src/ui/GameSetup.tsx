@@ -1,5 +1,5 @@
 import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import { Button, Center, Container, Flex, FormControl, FormLabel, HStack, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Spacer, Text, useDisclosure } from "@chakra-ui/react";
+import { Button, Center, Container, Flex, FormControl, FormLabel, HStack, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Spacer, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import { ChangeEvent, Dispatch, useState } from "react";
 import { Agent } from "../agents/Agent";
 import { AIAgent } from "../agents/AIAgent";
@@ -90,12 +90,14 @@ export function GameSetup({open, close, submitSettings}: Props) {
            <ModalContent>
                <ModalHeader>
                    Game Settings
-                <IconButton
-                    size='2em'
-                    onClick={()=>setShowAdvanced(!showAdvanced)}
-                    aria-label='Hide/show advanced settings'
-                    icon={showAdvanced ? <TriangleUpIcon /> : <TriangleDownIcon />}
-                />
+                   <Tooltip label='Show advanced settings'>
+                    <IconButton
+                        size='2em'
+                        onClick={()=>setShowAdvanced(!showAdvanced)}
+                        aria-label='Hide/show advanced settings'
+                        icon={showAdvanced ? <TriangleUpIcon /> : <TriangleDownIcon />}
+                    />
+                   </Tooltip>
                </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>

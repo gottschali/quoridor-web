@@ -1,4 +1,4 @@
-import { Badge, Center, CircularProgress, HStack, Text } from "@chakra-ui/react";
+import { Badge, Center, CircularProgress, HStack, Text, Tooltip } from "@chakra-ui/react";
 import { type Agent } from "../agents/Agent";
 import { Player } from "../quoridor/Player";
 import { useGame } from "./useGame";
@@ -19,9 +19,11 @@ export function GameInformation({currentAgent, game}: Props) {
                         ? <Badge fontSize='ml' colorScheme={currentAgent.isMachine ? 'green' : 'red'}> Winner: {winnerIcon}</Badge>
                         : <Badge fontSize='ml' variant={game.state.currentPlayer === Player.white ? 'outline' : 'solid'} colorScheme='blackAlpha'> turn: {game.turn} </Badge>
                     }
-                    <Badge fontSize='ml'>
-                        walls ●: {game.state.wallsAvailable[Player.black]} ○ : {game.state.wallsAvailable[Player.white]}
-                    </Badge>
+                    <Tooltip label='How many walls both players have still available'>
+                        <Badge fontSize='ml'>
+                            walls ●: {game.state.wallsAvailable[Player.black]} ○ : {game.state.wallsAvailable[Player.white]}
+                        </Badge>
+                    </Tooltip>
                     <Badge fontSize='ml'>Player: {currentAgent.name}
                         {currentIcon}
                     </Badge>

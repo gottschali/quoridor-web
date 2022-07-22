@@ -1,5 +1,5 @@
 import { ArrowBackIcon, InfoOutlineIcon, RepeatIcon, SettingsIcon, TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
-import { Center, Flex, HStack, IconButton } from "@chakra-ui/react";
+import { Center, Flex, HStack, IconButton, Tooltip } from "@chakra-ui/react";
 import { Dispatch, useState } from "react";
 
 interface Props {
@@ -13,20 +13,23 @@ export function GameActions({setShowSettings, reset, undo, showRules}: Props) {
     const [open, setOpen] = useState(true);
     const content =  open ? (
         <>
+            <Tooltip label="Open game settings">
+                <IconButton
+                    size='lg'
+                    onClick={()=>setShowSettings(true)}
+                    aria-label='Open game settings'
+                    icon={<SettingsIcon />}
+                />
+            </Tooltip>
 
-            <IconButton
-                size='lg'
-                onClick={()=>setShowSettings(true)}
-                aria-label='Open game settings'
-                icon={<SettingsIcon />}
-            />
-
-            <IconButton
-                size='lg'
-                onClick={undo}
-                aria-label='Undo move'
-                icon={<ArrowBackIcon />}
-            />
+            <Tooltip label="Undo the last move">
+                <IconButton
+                    size='lg'
+                    onClick={undo}
+                    aria-label='Undo move'
+                    icon={<ArrowBackIcon />}
+                />
+            </Tooltip>
             <IconButton
                 size='lg'
                 onClick={()=>setOpen(false)}
@@ -34,19 +37,23 @@ export function GameActions({setShowSettings, reset, undo, showRules}: Props) {
                 icon={<TriangleUpIcon />}
             />
 
-            <IconButton
-                size='lg'
-                onClick={showRules}
-                aria-label='Show the rules'
-                icon={<InfoOutlineIcon />}
-            />
+            <Tooltip label="Open the rules">
+                <IconButton
+                    size='lg'
+                    onClick={showRules}
+                    aria-label='Show the rules'
+                    icon={<InfoOutlineIcon />}
+                />
+            </Tooltip>
 
-            <IconButton
-                size='lg'
-                onClick={reset}
-                aria-label='Reset the game'
-                icon={<RepeatIcon />}
-            />
+            <Tooltip label="Reset the game">
+                <IconButton
+                    size='lg'
+                    onClick={reset}
+                    aria-label='Reset the game'
+                    icon={<RepeatIcon />}
+                />
+            </Tooltip>
         </>
         ): (
             <IconButton
