@@ -31,10 +31,10 @@ interface WallProps {
     setWall0: Dispatch<Pos>,
     setWall1: Dispatch<Pos>,
     setWall2: Dispatch<Pos>,
-    isLegal: (move: Move) => boolean,
+    isLegal: (move: Notation) => boolean,
 }
 
-function Wall({placed, row, column, orientation, proposeMove, highlight, setWall0, setWall1, setWall2}: WallProps) {
+function Wall({placed, row, column, orientation, proposeMove, highlight, setWall0, setWall1, setWall2, isLegal}: WallProps) {
     const handleHover = (e: React.MouseEvent) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left; //x position within the element.
@@ -47,9 +47,15 @@ function Wall({placed, row, column, orientation, proposeMove, highlight, setWall
         } else {
             shiftY = y <= 25 ? -1 : 1;
         }
-        setWall0([row, column]);
-        setWall2([row + shiftY, column + shiftX]);
-        setWall1([row + shiftY * 2, column + shiftX * 2]);
+        const move: WallMove = {
+            square: [row + shiftY, column + shiftX],
+            orientation
+        }
+        if (isLegal(moveToNotation({move}))) {
+            setWall0([row, column]);
+            setWall2([row + shiftY, column + shiftX]);
+            setWall1([row + shiftY * 2, column + shiftX * 2]);
+        }
     }
     const handleOut = (e: React.MouseEvent) => {
         setWall0([-1, -1]);
@@ -178,7 +184,7 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
                                                 key={j}
                                                 placed={false}
                                                 orientation={Orientation.Vertical}
-                                                isLegal={state.isLegal}
+                                                isLegal={state.isLegal.bind(state)}
                                                 proposeMove={()=>{}}
                                                 setWall0={()=>{}}
                                                 setWall1={()=>{}}
@@ -191,7 +197,7 @@ export function QuoridorBoard({controlled, game, submitMove }: Props) {
                                                 key={j}
                                                 placed={item === MatrixItem.PlacedWall}
                                                 orientation={i % 2 == 0 ? Orientation.Horizontal : Orientation.Vertical}
-                                                isLegal={state.isLegal}
+                                                isLegal={state.isLegal.bind(state)}
                                                 proposeMove={controlled ? proposeProxy : ()=>{}}
                                                 setWall0={state.wallsAvailable[state.currentPlayer] > 0 ? setWall0 : ()=>{}}
                                                 setWall1={state.wallsAvailable[state.currentPlayer] > 0 ? setWall1 : ()=>{}}
