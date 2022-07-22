@@ -10,65 +10,43 @@ interface Props {
 }
 
 export function GameActions({setShowSettings, reset, undo, showRules}: Props) {
-    const [open, setOpen] = useState(true);
-    const content =  open ? (
-        <>
-            <Tooltip label="Open game settings">
-                <IconButton
-                    size='lg'
-                    onClick={()=>setShowSettings(true)}
-                    aria-label='Open game settings'
-                    icon={<SettingsIcon />}
-                />
-            </Tooltip>
-
-            <Tooltip label="Undo the last move">
-                <IconButton
-                    size='lg'
-                    onClick={undo}
-                    aria-label='Undo move'
-                    icon={<ArrowBackIcon />}
-                />
-            </Tooltip>
-            <IconButton
-                size='lg'
-                onClick={()=>setOpen(false)}
-                aria-label='Toggle actions'
-                icon={<TriangleUpIcon />}
-            />
-
-            <Tooltip label="Open the rules">
-                <IconButton
-                    size='lg'
-                    onClick={showRules}
-                    aria-label='Show the rules'
-                    icon={<InfoOutlineIcon />}
-                />
-            </Tooltip>
-
-            <Tooltip label="Reset the game">
-                <IconButton
-                    size='lg'
-                    onClick={reset}
-                    aria-label='Reset the game'
-                    icon={<RepeatIcon />}
-                />
-            </Tooltip>
-        </>
-        ): (
-            <IconButton
-                size='lg'
-                onClick={()=>setOpen(true)}
-                aria-label='Reset the game'
-                icon={<TriangleDownIcon />}
-            />
-        );
-
-
     return (
         <Center>
-            <HStack spacing={4}>
-                {content}
+            <HStack spacing={4} p={2}>
+                <Tooltip label="Open game settings">
+                    <IconButton
+                        size='lg'
+                        onClick={()=>setShowSettings(true)}
+                        aria-label='Open game settings'
+                        icon={<SettingsIcon />}
+                    />
+                </Tooltip>
+
+                <Tooltip label="Undo the last move">
+                    <IconButton
+                        size='lg'
+                        onClick={undo}
+                        aria-label='Undo move'
+                        icon={<ArrowBackIcon />}
+                    />
+                </Tooltip>
+                <Tooltip label="Open the rules">
+                    <IconButton
+                        size='lg'
+                        onClick={showRules}
+                        aria-label='Show the rules'
+                        icon={<InfoOutlineIcon />}
+                    />
+                </Tooltip>
+
+                <Tooltip label="Reset the game">
+                    <IconButton
+                        size='lg'
+                        onClick={reset}
+                        aria-label='Reset the game'
+                        icon={<RepeatIcon />}
+                    />
+                </Tooltip>
             </HStack>
         </Center>
     )
