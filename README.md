@@ -1,4 +1,4 @@
-# Quoridor WEb
+# Quoridor Web
 A progressive web app implementation of the boardgame Quoridor.
 The goal of the players (black and white dots) is to reach the opposite side of the board.
 Either they can move to adjacent fields or place a wall as an obstacle.
